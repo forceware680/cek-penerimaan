@@ -492,7 +492,7 @@ export default function TempPersediaanStep1Table() {
                             value={filterNoTerima}
                             onChange={(e) => setFilterNoTerima(e.target.value)}
                             readOnly={true}
-                            style={{ backgroundColor: '#f5f5f5' }}
+                            className="readonly-input"
                         />
                     </div>
 
