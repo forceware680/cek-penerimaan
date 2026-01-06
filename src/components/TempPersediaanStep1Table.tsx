@@ -274,7 +274,15 @@ export default function TempPersediaanStep1Table() {
             { header: 'No Kel', key: 'NoKel', width: 10 },
         ];
 
-        worksheet.getRow(1).font = { bold: true };
+        // Style header row
+        const headerRow = worksheet.getRow(1);
+        headerRow.font = { bold: true };
+        headerRow.fill = {
+            type: 'pattern',
+            pattern: 'solid',
+            fgColor: { argb: 'FF4472C4' }
+        };
+        headerRow.font = { bold: true, color: { argb: 'FFFFFFFF' } };
 
         const exportData = data.map(row => ({
             ...row,
@@ -286,6 +294,52 @@ export default function TempPersediaanStep1Table() {
         }));
 
         worksheet.addRows(exportData);
+
+        // Add Auto Filter to header row (columns A to P)
+        worksheet.autoFilter = {
+            from: 'A1',
+            to: 'P1'
+        };
+
+        // Freeze first row (header) so it stays visible when scrolling
+        worksheet.views = [
+            { state: 'frozen', ySplit: 1, activeCell: 'A2', showGridLines: true }
+        ];
+
+        // Add Total row with SUM formulas
+        const dataEndRow = data.length + 1; // +1 for header
+        const totalRowNumber = dataEndRow + 1;
+
+        const totalRow = worksheet.addRow({
+            NoTerima: 'Total',
+            ObjekPersediaan: '',
+            NamaBarang: '',
+            Satuan: '',
+            MerkType: '',
+            Jumlah: { formula: `SUM(F2:F${dataEndRow})` },
+            Harga: { formula: `SUM(G2:G${dataEndRow})` },
+            TotalHarga: { formula: `SUM(H2:H${dataEndRow})` },
+            TglBAST: '',
+            TglInput: '',
+            Kadaluwarsa: '',
+            NoBAST: '',
+            Keterangan: '',
+            TipeSaldo: '',
+            FIFO: '',
+            NoKel: '',
+        });
+
+        // Style the Total row
+        totalRow.font = { bold: true };
+        totalRow.fill = {
+            type: 'pattern',
+            pattern: 'solid',
+            fgColor: { argb: 'FFE2EFDA' }
+        };
+
+        // Format number columns
+        worksheet.getColumn('Harga').numFmt = '#,##0.00';
+        worksheet.getColumn('TotalHarga').numFmt = '#,##0.00';
 
         const fileName = `CP_${cleanKetPBSubk}_${periode_awal}_sd_${periode_akhir}.xlsx`;
 
