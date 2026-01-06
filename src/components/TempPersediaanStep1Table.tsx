@@ -516,28 +516,29 @@ export default function TempPersediaanStep1Table() {
                 onCancel={() => setRekapVisible(false)}
                 footer={null}
             >
-                <Space direction="vertical" size={8}>
-                    <Text strong><DatabaseOutlined /> <span style={{ color: 'red' }}>Records: {totalRecords}</span></Text>
-                    <Text strong><ShoppingCartOutlined /> <span style={{ color: 'red' }}>Barang: {totalQuantity.toLocaleString()}</span></Text>
-                    <Text strong><WalletOutlined /> <span style={{ color: 'red' }}>Saldo Awal: </span>{initialBalance.toLocaleString('id-ID', { style: 'currency', currency: 'IDR' })}</Text>
-                    <Text strong><SyncOutlined /> <span style={{ color: 'red' }}>Saldo Berjalan: </span>{runningBalance.toLocaleString('id-ID', { style: 'currency', currency: 'IDR' })}</Text>
-                    <Text strong><WalletOutlined /> <span style={{ color: 'red' }}>Saldo Lain-lain: </span>{saldoLainLain.toLocaleString('id-ID', { style: 'currency', currency: 'IDR' })}</Text>
-                    <Text strong><FundOutlined /> <span style={{ color: 'red' }}>Sisa Stock: </span>{SaldoAwalSem2.toLocaleString('id-ID', { style: 'currency', currency: 'IDR' })}</Text>
-                    <Text strong><DollarOutlined /> <span style={{ color: 'red' }}>Total Harga: </span>{totalHarga.toLocaleString('id-ID', { style: 'currency', currency: 'IDR' })}</Text>
-                </Space>
-                <Button
-                    type="primary"
-                    ghost
-                    style={{ marginTop: 16 }}
-                    onClick={() => {
-                        navigator.clipboard.writeText(
-                            `Records: ${totalRecords}\nBarang: ${totalQuantity.toLocaleString()}\nSaldo Awal: ${initialBalance.toLocaleString('id-ID', { style: 'currency', currency: 'IDR' })}\nSaldo Berjalan: ${runningBalance.toLocaleString('id-ID', { style: 'currency', currency: 'IDR' })}\nSaldo Lain-lain: ${saldoLainLain.toLocaleString('id-ID', { style: 'currency', currency: 'IDR' })}\nSisa Stock: ${SaldoAwalSem2.toLocaleString('id-ID', { style: 'currency', currency: 'IDR' })}\nTotal Harga: ${totalHarga.toLocaleString('id-ID', { style: 'currency', currency: 'IDR' })}`
-                        );
-                        message.success('Hasil teks telah disalin');
-                    }}
-                >
-                    Salin Hasil
-                </Button>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+                    <Space direction="vertical" size={8} style={{ width: '100%' }}>
+                        <Text strong><DatabaseOutlined /> <span style={{ color: '#ff4d4f' }}>Records:</span> {totalRecords}</Text>
+                        <Text strong><ShoppingCartOutlined /> <span style={{ color: '#ff4d4f' }}>Barang:</span> {totalQuantity.toLocaleString()}</Text>
+                        <Text strong><WalletOutlined /> <span style={{ color: '#ff4d4f' }}>Saldo Awal:</span> {initialBalance.toLocaleString('id-ID', { style: 'currency', currency: 'IDR' })}</Text>
+                        <Text strong><SyncOutlined /> <span style={{ color: '#ff4d4f' }}>Saldo Berjalan:</span> {runningBalance.toLocaleString('id-ID', { style: 'currency', currency: 'IDR' })}</Text>
+                        <Text strong><WalletOutlined /> <span style={{ color: '#ff4d4f' }}>Saldo Lain-lain:</span> {saldoLainLain.toLocaleString('id-ID', { style: 'currency', currency: 'IDR' })}</Text>
+                        <Text strong><FundOutlined /> <span style={{ color: '#ff4d4f' }}>Sisa Stock:</span> {SaldoAwalSem2.toLocaleString('id-ID', { style: 'currency', currency: 'IDR' })}</Text>
+                        <Text strong><DollarOutlined /> <span style={{ color: '#ff4d4f' }}>Total Harga:</span> {totalHarga.toLocaleString('id-ID', { style: 'currency', currency: 'IDR' })}</Text>
+                    </Space>
+                    <Button
+                        type="primary"
+                        block
+                        onClick={() => {
+                            navigator.clipboard.writeText(
+                                `Records: ${totalRecords}\nBarang: ${totalQuantity.toLocaleString()}\nSaldo Awal: ${initialBalance.toLocaleString('id-ID', { style: 'currency', currency: 'IDR' })}\nSaldo Berjalan: ${runningBalance.toLocaleString('id-ID', { style: 'currency', currency: 'IDR' })}\nSaldo Lain-lain: ${saldoLainLain.toLocaleString('id-ID', { style: 'currency', currency: 'IDR' })}\nSisa Stock: ${SaldoAwalSem2.toLocaleString('id-ID', { style: 'currency', currency: 'IDR' })}\nTotal Harga: ${totalHarga.toLocaleString('id-ID', { style: 'currency', currency: 'IDR' })}`
+                            );
+                            message.success('Data berhasil disalin');
+                        }}
+                    >
+                        Copy
+                    </Button>
+                </div>
             </Modal>
         </div>
     );
