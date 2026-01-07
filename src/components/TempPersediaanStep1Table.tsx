@@ -340,7 +340,7 @@ export default function TempPersediaanStep1Table() {
             { state: 'frozen', ySplit: 1, activeCell: 'A2', showGridLines: true }
         ];
 
-        // Add Total row with SUM formulas
+        // Add Total row with SUBTOTAL formulas (109 = SUM ignoring hidden/filtered rows)
         const dataEndRow = data.length + 1; // +1 for header
         const totalRowNumber = dataEndRow + 1;
 
@@ -350,9 +350,9 @@ export default function TempPersediaanStep1Table() {
             NamaBarang: '',
             Satuan: '',
             MerkType: '',
-            Jumlah: { formula: `SUM(F2:F${dataEndRow})` },
-            Harga: { formula: `SUM(G2:G${dataEndRow})` },
-            TotalHarga: { formula: `SUM(H2:H${dataEndRow})` },
+            Jumlah: { formula: `SUBTOTAL(109,F2:F${dataEndRow})` },
+            Harga: { formula: `SUBTOTAL(109,G2:G${dataEndRow})` },
+            TotalHarga: { formula: `SUBTOTAL(109,H2:H${dataEndRow})` },
             TglBAST: '',
             TglInput: '',
             Kadaluwarsa: '',
