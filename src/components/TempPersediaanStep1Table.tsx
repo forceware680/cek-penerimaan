@@ -286,13 +286,20 @@ export default function TempPersediaanStep1Table() {
         };
         headerRow.font = { bold: true, color: { argb: 'FFFFFFFF' } };
 
+        // Helper function to parse date string to Date object
+        const parseDate = (dateStr: string): Date | string => {
+            if (!dateStr) return '';
+            const parsed = new Date(dateStr);
+            return isNaN(parsed.getTime()) ? dateStr : parsed;
+        };
+
         const exportData = data.map(row => ({
             ...row,
             Harga: parseFloat(row.Harga),
             TotalHarga: parseFloat(row.TotalHarga),
-            TglBAST: row.BAST,
-            TglInput: row.TglInput,
-            Kadaluwarsa: row.Kadaluwarsa,
+            TglBAST: parseDate(row.BAST),
+            TglInput: parseDate(row.TglInput),
+            Kadaluwarsa: parseDate(row.Kadaluwarsa),
         }));
 
         worksheet.addRows(exportData);
@@ -346,8 +353,10 @@ export default function TempPersediaanStep1Table() {
         // Format Objek Persediaan as text to prevent scientific notation
         worksheet.getColumn('ObjekPersediaan').numFmt = '@';
 
-        // Format Tgl BAST as datetime
+        // Format date columns as datetime
         worksheet.getColumn('TglBAST').numFmt = 'yyyy-mm-dd hh:mm:ss';
+        worksheet.getColumn('TglInput').numFmt = 'yyyy-mm-dd hh:mm:ss';
+        worksheet.getColumn('Kadaluwarsa').numFmt = 'yyyy-mm-dd hh:mm:ss';
 
         const fileName = `CP_${cleanKetPBSubk}_${periode_awal}_sd_${periode_akhir}.xlsx`;
 
