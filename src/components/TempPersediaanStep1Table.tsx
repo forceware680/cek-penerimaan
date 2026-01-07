@@ -340,9 +340,12 @@ export default function TempPersediaanStep1Table() {
             { state: 'frozen', ySplit: 1, activeCell: 'A2', showGridLines: true }
         ];
 
+        // Add empty row to separate data from Total (so Total won't be filtered)
+        worksheet.addRow({});
+
         // Add Total row with SUBTOTAL formulas (109 = SUM ignoring hidden/filtered rows)
         const dataEndRow = data.length + 1; // +1 for header
-        const totalRowNumber = dataEndRow + 1;
+        const totalRowNumber = dataEndRow + 2; // +2 to account for empty row
 
         const totalRow = worksheet.addRow({
             NoTerima: 'Total',
