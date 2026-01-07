@@ -343,6 +343,12 @@ export default function TempPersediaanStep1Table() {
         worksheet.getColumn('Harga').numFmt = '#,##0.00';
         worksheet.getColumn('TotalHarga').numFmt = '#,##0.00';
 
+        // Format Objek Persediaan as text to prevent scientific notation
+        worksheet.getColumn('ObjekPersediaan').numFmt = '@';
+
+        // Format Tgl BAST as datetime
+        worksheet.getColumn('TglBAST').numFmt = 'yyyy-mm-dd hh:mm:ss';
+
         const fileName = `CP_${cleanKetPBSubk}_${periode_awal}_sd_${periode_akhir}.xlsx`;
 
         try {
