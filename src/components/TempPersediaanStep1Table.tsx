@@ -287,33 +287,44 @@ export default function TempPersediaanStep1Table() {
         };
         headerRow.font = { bold: true, color: { argb: 'FFFFFFFF' } };
 
-        // Helper function to parse date string to Date object without timezone shift
-        // This extracts date components manually to avoid JavaScript's timezone handling
-        const parseDateLocal = (dateStr: string): Date | string => {
+        // Helper function to convert date string to Excel serial number
+        // Excel dates are stored as number of days since 1900-01-01 (with a bug where 1900 is treated as leap year)
+        const dateToExcelSerial = (dateStr: string): number | string => {
             if (!dateStr) return '';
+
             // Try to parse formats like "2025-01-01 00:00:00" or "2025-01-01T00:00:00"
-            const match = dateStr.match(/(\d{4})-(\d{2})-(\d{2})[T\s](\d{2}):(\d{2}):(\d{2})/);
-            if (match) {
-                const [, year, month, day, hour, minute, second] = match;
-                // Create date using local time (month is 0-indexed)
-                return new Date(parseInt(year), parseInt(month) - 1, parseInt(day), parseInt(hour), parseInt(minute), parseInt(second));
+            let year: number, month: number, day: number, hour = 0, minute = 0, second = 0;
+
+            const fullMatch = dateStr.match(/(\d{4})-(\d{2})-(\d{2})[T\s](\d{2}):(\d{2}):(\d{2})/);
+            if (fullMatch) {
+                [, year, month, day, hour, minute, second] = fullMatch.map(Number) as [any, number, number, number, number, number, number];
+            } else {
+                // Try date-only format "2025-01-01"
+                const dateOnlyMatch = dateStr.match(/(\d{4})-(\d{2})-(\d{2})/);
+                if (dateOnlyMatch) {
+                    [, year, month, day] = dateOnlyMatch.map(Number) as [any, number, number, number];
+                } else {
+                    return dateStr; // Return original if can't parse
+                }
             }
-            // Try date-only format "2025-01-01"
-            const dateOnlyMatch = dateStr.match(/(\d{4})-(\d{2})-(\d{2})/);
-            if (dateOnlyMatch) {
-                const [, year, month, day] = dateOnlyMatch;
-                return new Date(parseInt(year), parseInt(month) - 1, parseInt(day));
-            }
-            return dateStr; // Return original if can't parse
+
+            // Calculate Excel serial number
+            // Excel epoch: 1900-01-01 = 1 (with leap year bug: 1900-02-29 exists in Excel)
+            const excelEpoch = new Date(Date.UTC(1899, 11, 30)); // Dec 30, 1899 to account for Excel's quirks
+            const targetDate = Date.UTC(year, month - 1, day, hour, minute, second);
+            const diffMs = targetDate - excelEpoch.getTime();
+            const diffDays = diffMs / (1000 * 60 * 60 * 24);
+
+            return diffDays;
         };
 
         const exportData = data.map(row => ({
             ...row,
             Harga: parseFloat(row.Harga),
             TotalHarga: parseFloat(row.TotalHarga),
-            TglBAST: parseDateLocal(row.BAST),
-            TglInput: parseDateLocal(row.TglInput),
-            Kadaluwarsa: parseDateLocal(row.Kadaluwarsa),
+            TglBAST: dateToExcelSerial(row.BAST),
+            TglInput: dateToExcelSerial(row.TglInput),
+            Kadaluwarsa: dateToExcelSerial(row.Kadaluwarsa),
         }));
 
         worksheet.addRows(exportData);
