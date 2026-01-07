@@ -71,6 +71,7 @@ export default function TempPersediaanStep1Table() {
     const [isRekapVisible, setRekapVisible] = useState(false);
     const [emptying, setEmptying] = useState(false);
     const [pageSize, setPageSize] = useState(10);
+    const [currentPage, setCurrentPage] = useState(1);
     const [totalRecords, setTotalRecords] = useState(0);
     const [initialBalance, setInitialBalance] = useState(0);
     const [runningBalance, setRunningBalance] = useState(0);
@@ -285,21 +286,13 @@ export default function TempPersediaanStep1Table() {
             fgColor: { argb: 'FF4472C4' }
         };
         headerRow.font = { bold: true, color: { argb: 'FFFFFFFF' } };
-
-        // Helper function to parse date string to Date object
-        const parseDate = (dateStr: string): Date | string => {
-            if (!dateStr) return '';
-            const parsed = new Date(dateStr);
-            return isNaN(parsed.getTime()) ? dateStr : parsed;
-        };
-
         const exportData = data.map(row => ({
             ...row,
             Harga: parseFloat(row.Harga),
             TotalHarga: parseFloat(row.TotalHarga),
-            TglBAST: parseDate(row.BAST),
-            TglInput: parseDate(row.TglInput),
-            Kadaluwarsa: parseDate(row.Kadaluwarsa),
+            TglBAST: row.BAST,
+            TglInput: row.TglInput,
+            Kadaluwarsa: row.Kadaluwarsa,
         }));
 
         worksheet.addRows(exportData);
@@ -352,11 +345,6 @@ export default function TempPersediaanStep1Table() {
 
         // Format Objek Persediaan as text to prevent scientific notation
         worksheet.getColumn('ObjekPersediaan').numFmt = '@';
-
-        // Format date columns as datetime
-        worksheet.getColumn('TglBAST').numFmt = 'yyyy-mm-dd hh:mm:ss';
-        worksheet.getColumn('TglInput').numFmt = 'yyyy-mm-dd hh:mm:ss';
-        worksheet.getColumn('Kadaluwarsa').numFmt = 'yyyy-mm-dd hh:mm:ss';
 
         const fileName = `CP_${cleanKetPBSubk}_${periode_awal}_sd_${periode_akhir}.xlsx`;
 
@@ -476,10 +464,19 @@ export default function TempPersediaanStep1Table() {
                     dataSource={data}
                     rowKey={(record) => `${record.NoTerima}-${record.ObjekPersediaan}-${record.FIFO}`}
                     pagination={{
+                        current: currentPage,
                         pageSize: pageSize,
+                        total: data.length,
                         showSizeChanger: true,
                         pageSizeOptions: ['10', '20', '50', '100', '1000'],
-                        onChange: (_, size) => setPageSize(size),
+                        onChange: (page, size) => {
+                            setCurrentPage(page);
+                            if (size !== pageSize) setPageSize(size);
+                        },
+                        onShowSizeChange: (_, size) => {
+                            setPageSize(size);
+                            setCurrentPage(1);
+                        },
                         showTotal: (total, range) => `${range[0]}-${range[1]} of ${total} items`,
                     }}
                     scroll={{ x: 1500, y: 500 }}
