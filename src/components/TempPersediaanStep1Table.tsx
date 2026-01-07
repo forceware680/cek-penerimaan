@@ -286,13 +286,34 @@ export default function TempPersediaanStep1Table() {
             fgColor: { argb: 'FF4472C4' }
         };
         headerRow.font = { bold: true, color: { argb: 'FFFFFFFF' } };
+
+        // Helper function to parse date string to Date object without timezone shift
+        // This extracts date components manually to avoid JavaScript's timezone handling
+        const parseDateLocal = (dateStr: string): Date | string => {
+            if (!dateStr) return '';
+            // Try to parse formats like "2025-01-01 00:00:00" or "2025-01-01T00:00:00"
+            const match = dateStr.match(/(\d{4})-(\d{2})-(\d{2})[T\s](\d{2}):(\d{2}):(\d{2})/);
+            if (match) {
+                const [, year, month, day, hour, minute, second] = match;
+                // Create date using local time (month is 0-indexed)
+                return new Date(parseInt(year), parseInt(month) - 1, parseInt(day), parseInt(hour), parseInt(minute), parseInt(second));
+            }
+            // Try date-only format "2025-01-01"
+            const dateOnlyMatch = dateStr.match(/(\d{4})-(\d{2})-(\d{2})/);
+            if (dateOnlyMatch) {
+                const [, year, month, day] = dateOnlyMatch;
+                return new Date(parseInt(year), parseInt(month) - 1, parseInt(day));
+            }
+            return dateStr; // Return original if can't parse
+        };
+
         const exportData = data.map(row => ({
             ...row,
             Harga: parseFloat(row.Harga),
             TotalHarga: parseFloat(row.TotalHarga),
-            TglBAST: row.BAST,
-            TglInput: row.TglInput,
-            Kadaluwarsa: row.Kadaluwarsa,
+            TglBAST: parseDateLocal(row.BAST),
+            TglInput: parseDateLocal(row.TglInput),
+            Kadaluwarsa: parseDateLocal(row.Kadaluwarsa),
         }));
 
         worksheet.addRows(exportData);
@@ -345,6 +366,11 @@ export default function TempPersediaanStep1Table() {
 
         // Format Objek Persediaan as text to prevent scientific notation
         worksheet.getColumn('ObjekPersediaan').numFmt = '@';
+
+        // Format date columns as datetime
+        worksheet.getColumn('TglBAST').numFmt = 'yyyy-mm-dd hh:mm:ss';
+        worksheet.getColumn('TglInput').numFmt = 'yyyy-mm-dd hh:mm:ss';
+        worksheet.getColumn('Kadaluwarsa').numFmt = 'yyyy-mm-dd hh:mm:ss';
 
         const fileName = `CP_${cleanKetPBSubk}_${periode_awal}_sd_${periode_akhir}.xlsx`;
 
