@@ -29,6 +29,8 @@ import {
     DollarOutlined,
     PieChartOutlined,
     FundOutlined,
+    QuestionCircleOutlined,
+    DownOutlined,
 } from '@ant-design/icons';
 import PBSubkData from '@/data/PBSubk.json';
 import { useAuth } from '@/context/AuthContext';
@@ -389,12 +391,16 @@ export default function TempPersediaanStep1Table() {
         <div style={{ padding: '20px' }}>
             <div style={{ marginBottom: 16, display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 8 }}>
                 <Space wrap>
-                    <Dropdown.Button
-                        menu={{ items: dropdownItems, onClick: ({ key }) => handleDropdownChange(key) }}
-                        size="middle"
-                    >
-                        Tarik Jenis Data
-                    </Dropdown.Button>
+                    <Space.Compact>
+                        <Dropdown
+                            menu={{ items: dropdownItems, onClick: ({ key }) => handleDropdownChange(key) }}
+                            trigger={['click']}
+                        >
+                            <Button size="middle">
+                                Tarik Jenis Data <DownOutlined />
+                            </Button>
+                        </Dropdown>
+                    </Space.Compact>
 
                     <Tooltip title={data.length === 0 ? 'Tidak ada data' : 'Export ke Excel'}>
                         <Button
@@ -428,17 +434,32 @@ export default function TempPersediaanStep1Table() {
                     >
                         Rekap
                     </Button>
+
+                    <Tooltip title="Lihat Tutorial Cek Penerimaan">
+                        <Button
+                            type="default"
+                            icon={<QuestionCircleOutlined />}
+                            size="middle"
+                            href="https://simasetwiki.vercel.app/tutorial/cek-penerimaan-sigepeng"
+                            target="_blank"
+                            style={{ color: '#faad14', borderColor: '#faad14' }}
+                        >
+                            Tutorial
+                        </Button>
+                    </Tooltip>
                 </Space>
                 <Typography.Text type="secondary">Total Records: {totalRecords}</Typography.Text>
             </div>
 
             {loading ? (
-                <Spin tip="Loading data..." />
+                <Spin tip="Loading data..." size="large">
+                    <div style={{ minHeight: 200 }} />
+                </Spin>
             ) : (
                 <Table
                     columns={columns}
                     dataSource={data}
-                    rowKey={(record, index) => `${record.NoTerima}-${index}`}
+                    rowKey={(record) => `${record.NoTerima}-${record.ObjekPersediaan}-${record.FIFO}`}
                     pagination={{
                         pageSize: pageSize,
                         showSizeChanger: true,
