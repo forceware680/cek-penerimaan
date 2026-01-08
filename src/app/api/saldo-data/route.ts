@@ -21,7 +21,7 @@ export async function GET() {
             .query(`
         SELECT COALESCE(SUM(TotalHarga), 0) AS SaldoAwal
         FROM dbkop.dbo.temppersediaanstep1
-        WHERE TipeSaldo = 'Saldo Awal' AND Keterangan ='Saldo Awal'
+        WHERE TipeSaldo = 'Saldo Awal' AND Keterangan ='Saldo Awal Tahun'
           AND ((@isNull IS NULL) OR (NoKel LIKE @like + '%'))
       `);
         const saldoAwal = saldoAwalResult.recordset[0].SaldoAwal;
