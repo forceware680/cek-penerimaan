@@ -57,7 +57,7 @@ export async function GET() {
             .query(`
         SELECT COALESCE(SUM(TotalHarga), 0) AS SaldoAwalSem2
         FROM dbkop.dbo.temppersediaanstep1
-        WHERE (NoTerima LIKE '%MX%' OR NoTerima LIKE '%MLX%' OR NoTerima LIKE '%MLL%')
+        WHERE (Keterangan LIKE '%Saldo Awal Sem 2%' OR Keterangan LIKE '%Saldo Awal Triwulan 2%' OR Keterangan LIKE '%Saldo Awal Triwulan 3%')
           AND ((@isNull IS NULL) OR (NoKel LIKE @like + '%'))
       `);
         const saldoAwalSem2 = saldoAwalSem2Result.recordset[0].SaldoAwalSem2;

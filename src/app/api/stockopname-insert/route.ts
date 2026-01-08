@@ -3,29 +3,29 @@ import { getConnection } from '@/lib/db';
 import { getCurrentUser } from '@/lib/auth';
 
 export async function GET(request: NextRequest) {
-    try {
-        const user = await getCurrentUser();
-        if (!user) {
-            return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-        }
+  try {
+    const user = await getCurrentUser();
+    if (!user) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
 
-        const searchParams = request.nextUrl.searchParams;
-        const filterPrefix = user.role === 'ADMIN' ? null : user.filter;
+    const searchParams = request.nextUrl.searchParams;
+    const filterPrefix = user.role === 'ADMIN' ? null : user.filter;
 
-        const rawPbsubk = filterPrefix || searchParams.get('filter_no_terima') || searchParams.get('pbsubk') || '0501010000000000';
-        const onlyDigits = rawPbsubk.replace(/\D/g, '');
-        const filterNoTerima = (onlyDigits || '0501010000000000').slice(0, 16);
+    const rawPbsubk = filterPrefix || searchParams.get('filter_no_terima') || searchParams.get('pbsubk') || '0501010000000000';
+    const onlyDigits = rawPbsubk.replace(/\D/g, '');
+    const filterNoTerima = (onlyDigits || '0501010000000000').slice(0, 16);
 
-        const pa = (searchParams.get('periode_awal') || searchParams.get('start_date') || '2025-01-01').slice(0, 10);
-        const pk = (searchParams.get('periode_akhir') || searchParams.get('end_date') || '2025-06-30').slice(0, 10);
+    const pa = (searchParams.get('periode_awal') || searchParams.get('start_date') || '2025-01-01').slice(0, 10);
+    const pk = (searchParams.get('periode_akhir') || searchParams.get('end_date') || '2025-06-30').slice(0, 10);
 
-        const conn = await getConnection();
+    const conn = await getConnection();
 
-        await conn.request()
-            .input('FilterNoTerima', filterNoTerima)
-            .input('StartDate', pa)
-            .input('EndDate', pk)
-            .query(`
+    await conn.request()
+      .input('FilterNoTerima', filterNoTerima)
+      .input('StartDate', pa)
+      .input('EndDate', pk)
+      .query(`
         SET NOCOUNT ON;
 
         DECLARE @PBSubkDot VARCHAR(20) =
@@ -95,7 +95,7 @@ export async function GET(request: NextRequest) {
         SELECT NoTerima = i.NoTransIn, p.ObjekPersediaan, op.Keterangan AS NamaBarang, op.Satuan, op.Keterangan AS MerkType,
                Jumlah = CAST(p.Masuk - p.Keluar AS DECIMAL(18,2)), Harga = CAST(h.Harga AS DECIMAL(18,2)),
                TotalHarga = CAST((p.Masuk - p.Keluar) * h.Harga AS DECIMAL(18,2)), BAST = i.TglIn, NoBAST = i.NoTransIn,
-               Kadaluwarsa = h.Kadaluwarsa, Keterangan = 'Saldo Awal Sem 1', TipeSaldo = 'Saldo Awal', FIFO = p.FIFO, TglInput = i.TglIn
+               Kadaluwarsa = h.Kadaluwarsa, Keterangan = 'Saldo Awal Sem 2', TipeSaldo = 'Saldo Awal', FIFO = p.FIFO, TglInput = i.TglIn
         INTO #Final
         FROM #PerFIFO p
         JOIN #InboundFIFO i ON i.FIFO = p.FIFO
@@ -118,16 +118,16 @@ export async function GET(request: NextRequest) {
         ORDER BY f.BAST ASC;
       `);
 
-        return NextResponse.json({
-            ok: true,
-            echo_params: {
-                filter_no_terima: filterNoTerima,
-                periode_awal: pa,
-                periode_akhir: pk
-            }
-        });
-    } catch (error) {
-        console.error('Stockopname insert error:', error);
-        return NextResponse.json({ ok: false, error: String(error) }, { status: 500 });
-    }
+    return NextResponse.json({
+      ok: true,
+      echo_params: {
+        filter_no_terima: filterNoTerima,
+        periode_awal: pa,
+        periode_akhir: pk
+      }
+    });
+  } catch (error) {
+    console.error('Stockopname insert error:', error);
+    return NextResponse.json({ ok: false, error: String(error) }, { status: 500 });
+  }
 }
