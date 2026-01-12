@@ -71,7 +71,14 @@ const Typewriter = ({ text, speed = 150, delay = 2000 }: { text: string; speed?:
 export default function Dashboard() {
     const { user, logout } = useAuth();
     const [collapsed, setCollapsed] = useState(false);
-    const [isDark, setIsDark] = useState(false);
+    const [isDark, setIsDark] = useState(() => {
+        // Check localStorage on initial render (client-side only)
+        if (typeof window !== 'undefined') {
+            const saved = localStorage.getItem('theme');
+            return saved === 'dark';
+        }
+        return false;
+    });
     const [isMobile, setIsMobile] = useState(false);
     const [openNav, setOpenNav] = useState(false);
 
@@ -88,8 +95,13 @@ export default function Dashboard() {
 
     useEffect(() => {
         const cls = 'theme-dark';
-        if (isDark) document.body.classList.add(cls);
-        else document.body.classList.remove(cls);
+        if (isDark) {
+            document.body.classList.add(cls);
+            localStorage.setItem('theme', 'dark');
+        } else {
+            document.body.classList.remove(cls);
+            localStorage.setItem('theme', 'light');
+        }
     }, [isDark]);
 
     const menuItems = [
