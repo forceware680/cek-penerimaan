@@ -188,6 +188,22 @@ options: {
 
 ## 📝 Changelog
 
+### 2026-01-26
+- ✅ **Dynamic NoKel Year Suffix**: NoKel sekarang di-generate secara dinamis berdasarkan Tahun Anggaran yang dipilih saat login. Contoh: jika pilih Tahun 2026, NoKel akan menjadi `.26K0001` bukan `.25K0001` yang sebelumnya hardcoded. Perubahan di:
+  - `TempPersediaanStep1Table.tsx`: Mengirim parameter `fiscal_year` ke API
+  - 5 API routes: `tarik-saldo-awal`, `tarik-saldo-tahun-lalu`, `tarik-saldo-berjalan`, `tarik-saldo-lain-lain`, `stockopname-insert` - semua menggunakan `@NoKelPrefix` dinamis
+
+- ✅ **Fix Date Comparison Bug**: Memperbaiki bug dimana data di luar range tanggal ikut tertarik (contoh: saldo awal 2026 ikut tertarik ketika pilih periode 2025). Penyebab: SQL Server tidak mengkonversi string ke datetime dengan benar saat menggunakan `BETWEEN`. Solusi: Menggunakan `CONVERT(DATETIME, @Periode*, 120)` untuk konversi eksplisit. Fix diterapkan di:
+  - `tarik-saldo-tahun-lalu`: Query CTE `SO` pada kolom `Awal`
+  - `tarik-saldo-berjalan`: Query CTE `FilteredData` pada kolom `TglBAST`
+  - `tarik-saldo-lain-lain`: Query CTE `FilteredData` pada kolom `TglBast`
+  - `tarik-saldo-awal`: Query CTE `FilteredData` pada kolom `TglBast`
+
+### 2026-01-12
+- ✅ **Fix Dark Mode Persistence**: Toggle dark/light mode sekarang tersimpan di `localStorage`, sehingga preferensi theme tetap terjaga setelah browser reload. Perubahan di `Dashboard.tsx`:
+  - State `isDark` membaca dari `localStorage.getItem('theme')` saat mount
+  - Setiap perubahan mode disimpan ke `localStorage.setItem('theme', 'dark'|'light')`
+
 ### 2026-01-06
 - ✅ Initial project creation
 - ✅ Migrasi dari Flask+React ke Next.js 14+
@@ -207,10 +223,12 @@ options: {
 
 3. **Query SQL**: Semua query di API routes adalah port 1:1 dari Flask, jangan ubah logikanya kecuali diminta
 
-4. **Fiscal Year**: User bisa pilih tahun anggaran saat login, disimpan di localStorage
+4. **Fiscal Year**: User bisa pilih tahun anggaran saat login, disimpan di localStorage. NoKel di-generate menggunakan 2 digit terakhir tahun (2026 → `.26K`)
 
 5. **Periode Default**: Semester 1 (Jan-Jun) atau Semester 2 (Jul-Dec) dengan preset di DatePicker
 
+6. **Date Comparison**: Selalu gunakan `CONVERT(DATETIME, @param, 120)` untuk konversi string ke datetime di SQL queries agar tidak terjadi bug boundary comparison
+
 ---
 
-*Last updated: 2026-01-06 10:07*
+*Last updated: 2026-01-26 14:44*

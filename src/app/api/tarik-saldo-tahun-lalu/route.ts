@@ -15,27 +15,33 @@ export async function GET(request: NextRequest) {
         const periodeAwal = searchParams.get('periode_awal') || '2024-01-01';
         const periodeAkhir = searchParams.get('periode_akhir') || '2024-06-30 23:59:59';
 
+        // Get fiscal year and extract 2-digit suffix for NoKel (e.g., 2026 → 26)
+        const fiscalYear = parseInt(searchParams.get('fiscal_year') || String(new Date().getFullYear()));
+        const yearSuffix = String(fiscalYear).slice(-2); // Get last 2 digits
+
         const conn = await getConnection();
 
         await conn.request()
             .input('FilterNoTerima', filterNoTerima)
             .input('PeriodeAwal', periodeAwal)
             .input('PeriodeAkhir', periodeAkhir)
+            .input('YearSuffix', yearSuffix)
             .query(`
         DECLARE @PBSubkNoDot NVARCHAR(50) = LEFT(@FilterNoTerima, 16);
         DECLARE @LastSeqTemp INT;
         DECLARE @LastSeqKeluar INT;
         DECLARE @LastSeq INT;
+        DECLARE @NoKelPrefix NVARCHAR(10) = '.' + @YearSuffix + 'K';
 
         SELECT @LastSeqTemp = MAX(CAST(RIGHT(NoKel, 4) AS INT))
         FROM DBKOP.dbo.TempPersediaanStep1 WITH (NOLOCK)
-        WHERE LEFT(NoKel, 16) = @PBSubkNoDot AND NoKel LIKE @PBSubkNoDot + '.25K%';
+        WHERE LEFT(NoKel, 16) = @PBSubkNoDot AND NoKel LIKE @PBSubkNoDot + @NoKelPrefix + '%';
 
         IF @LastSeqTemp IS NULL
         BEGIN
             SELECT @LastSeqKeluar = MAX(CAST(RIGHT(NoKel, 4) AS INT))
             FROM AsetPersediaan90.dbo.KeluarBar WITH (NOLOCK)
-            WHERE LEFT(NoKel, 16) = @PBSubkNoDot AND NoKel LIKE @PBSubkNoDot + '.25K%';
+            WHERE LEFT(NoKel, 16) = @PBSubkNoDot AND NoKel LIKE @PBSubkNoDot + @NoKelPrefix + '%';
         END
         ELSE SET @LastSeqKeluar = NULL;
 
@@ -45,7 +51,9 @@ export async function GET(request: NextRequest) {
         ;WITH SO AS (
             SELECT Pengguna, Tglinput, PbSubK, NoTB, Tutup, Awal, Keterangan
             FROM AsetPersediaan90.dbo.tutupbuku  
-            WHERE NoTB LIKE @FilterNoTerima + '%' AND Awal BETWEEN @PeriodeAwal AND @PeriodeAkhir
+            WHERE NoTB LIKE @FilterNoTerima + '%' 
+              AND Awal >= CONVERT(DATETIME, @PeriodeAwal, 120) 
+              AND Awal <= CONVERT(DATETIME, @PeriodeAkhir, 120)
         ),
         SOdet AS (
             SELECT a.NoTB, a.Tglinput, b.ObjekPersediaan, b.FiFo, b.Expired, b.Jumlah, 
@@ -76,6 +84,59 @@ export async function GET(request: NextRequest) {
             FROM AsetPersediaan90.dbo.PenerimaanDetDPANon d
             JOIN AsetPersediaan90.dbo.PenerimaanDPANon p ON d.NoTerima = p.NoTerima
             WHERE d.NoTerima LIKE @FilterNoTerima + '%'
+            UNION ALL
+            SELECT 
+        d.NoTerima,
+        d.ObjekPersediaan,
+        d.MerkType,
+        d.Jumlah,
+        d.Harga,
+        d.Kadaluwarsa,
+        d.Keterangan,
+        p.TglBast AS BAST,
+        p.TAG,
+        d.ObjekPersediaan + '_' +
+        CONVERT(VARCHAR(8), p.TglBast, 112) + '_' +      -- yyyyMMdd    
+        RIGHT('0' + CAST(DATEPART(HOUR,   COALESCE(p.TglInput, p.TglBAST)) AS VARCHAR(2)), 2) + ':' +
+        RIGHT('0' + CAST(DATEPART(MINUTE, COALESCE(p.TglInput, p.TglBast)) AS VARCHAR(2)), 2) AS FIFO,
+        
+        LEFT(d.NoTerima, 16) AS PBSubkNoDot,
+        CASE 
+            WHEN d.NoTerima LIKE '%SO%' THEN 1
+            WHEN d.NoTerima LIKE '%TL%' THEN 2
+            WHEN d.NoTerima LIKE '%T%' AND d.NoTerima NOT LIKE '%TL%' THEN 3
+            ELSE 4
+        END AS PriorityOrder
+    FROM AsetPersediaan90.dbo.PenerimaanDetDPA d
+    JOIN AsetPersediaan90.dbo.PenerimaanDPA p ON d.NoTerima = p.NoTerima
+    WHERE d.NoTerima LIKE @FilterNoTerima + '%'
+
+    UNION ALL
+
+    SELECT 
+        d.NoTerima,
+        d.ObjekPersediaan,
+        d.MerkType,
+        d.Jumlah,
+        d.Harga,
+        d.Kadaluwarsa,
+        d.Keterangan,
+        p.TglBast AS TglTransaksi,
+        p.TAG,
+        d.ObjekPersediaan + '_' +
+        CONVERT(VARCHAR(8), p.TglBast, 112) + '_' +      -- yyyyMMdd
+             RIGHT('0' + CAST(DATEPART(HOUR,   COALESCE(p.TglInput, p.TglBAST)) AS VARCHAR(2)), 2) + ':' +
+        RIGHT('0' + CAST(DATEPART(MINUTE, COALESCE(p.TglInput, p.TglBast)) AS VARCHAR(2)), 2) AS FIFO,
+        LEFT(d.NoTerima, 16) AS PBSubkNoDot,
+        CASE 
+            WHEN d.NoTerima LIKE '%SO%' THEN 1
+            WHEN d.NoTerima LIKE '%TL%' THEN 2
+            WHEN d.NoTerima LIKE '%T%' AND d.NoTerima NOT LIKE '%TL%' THEN 3
+            ELSE 4
+        END AS PriorityOrder
+    FROM AsetPersediaan90.dbo.PenerimaanDetDPANon d
+    JOIN AsetPersediaan90.dbo.PenerimaanDPANon p ON d.NoTerima = p.NoTerima
+    WHERE d.NoTerima LIKE @FilterNoTerima + '%'
         ),
         YML AS (
             SELECT a.NoTB AS NoTerima, a.ObjekPersediaan, c.Keterangan AS NamaBarang, c.Satuan,
@@ -97,7 +158,7 @@ export async function GET(request: NextRequest) {
         DataFinal AS (
             SELECT b.NoTerima, b.ObjekPersediaan, b.NamaBarang, b.Satuan, b.MerkType, b.Jumlah, b.Harga,
                    b.TotalHarga, b.BAST, b.Tglinput, b.NoBAST, b.Kadaluwarsa, b.Keterangan, b.TipeSaldo, b.FIFO,
-                   b.PBSubkNoDot + '.25K' + RIGHT('0000' + CAST(@LastSeq + s.rn AS VARCHAR(4)), 4) AS NoKel
+                   b.PBSubkNoDot + @NoKelPrefix + RIGHT('0000' + CAST(@LastSeq + s.rn AS VARCHAR(4)), 4) AS NoKel
             FROM YML b
             JOIN NoTerimaSeq s ON b.PBSubkNoDot = s.PBSubkNoDot AND b.NoTerima = s.NoTerima
         )

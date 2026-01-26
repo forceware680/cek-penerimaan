@@ -201,6 +201,7 @@ export default function TempPersediaanStep1Table() {
                 filter_no_terima: filterNoTerima,
                 periode_awal: periode[0]?.format('YYYY-MM-DD HH:mm:ss') || '',
                 periode_akhir: periode[1]?.format('YYYY-MM-DD HH:mm:ss') || '',
+                fiscal_year: String(fiscalYear),
             });
 
             const res = await fetch(`${endpoint}?${params}`, { credentials: 'include' });

@@ -15,6 +15,10 @@ export async function GET(request: NextRequest) {
         const periodeAwal = searchParams.get('periode_awal') || '2024-01-01';
         const periodeAkhir = searchParams.get('periode_akhir') || '2024-06-30 23:59:59';
 
+        // Get fiscal year and extract 2-digit suffix for NoKel (e.g., 2026 → 26)
+        const fiscalYear = parseInt(searchParams.get('fiscal_year') || String(new Date().getFullYear()));
+        const yearSuffix = String(fiscalYear).slice(-2); // Get last 2 digits
+
         const conn = await getConnection();
 
         // Execute the complex insert query
@@ -22,19 +26,21 @@ export async function GET(request: NextRequest) {
             .input('FilterNoTerima', filterNoTerima)
             .input('PeriodeAwal', periodeAwal)
             .input('PeriodeAkhir', periodeAkhir)
+            .input('YearSuffix', yearSuffix)
             .query(`
         /* ===================== TURUNAN ======================= */
         DECLARE @PBSubkNoDot VARCHAR(16) = LEFT(@FilterNoTerima, 16);
         DECLARE @LastSeqTemp INT;
         DECLARE @LastSeqKeluar INT;
         DECLARE @LastSeq INT;
+        DECLARE @NoKelPrefix NVARCHAR(10) = '.' + @YearSuffix + 'K';
 
         /* 1) CEK LAST SEQ DI TEMP TERLEBIH DULU (PER PBSubk) */
         SELECT 
             @LastSeqTemp = MAX(CAST(RIGHT(NoKel, 4) AS INT))
         FROM DBKOP.dbo.TempPersediaanStep1 WITH (NOLOCK)
         WHERE LEFT(NoKel, 16) = @PBSubkNoDot
-          AND NoKel LIKE @PBSubkNoDot + '.25K%';
+          AND NoKel LIKE @PBSubkNoDot + @NoKelPrefix + '%';
 
         /* 2) JIKA TEMP KOSONG, FALLBACK KE AsetPersediaan90.dbo.KeluarBar */
         IF @LastSeqTemp IS NULL
@@ -43,7 +49,7 @@ export async function GET(request: NextRequest) {
                 @LastSeqKeluar = MAX(CAST(RIGHT(NoKel, 4) AS INT))
             FROM AsetPersediaan90.dbo.KeluarBar WITH (NOLOCK)
             WHERE LEFT(NoKel, 16) = @PBSubkNoDot
-              AND NoKel LIKE @PBSubkNoDot + '.25K%';
+              AND NoKel LIKE @PBSubkNoDot + @NoKelPrefix + '%';
         END
         ELSE
         BEGIN
@@ -90,8 +96,8 @@ export async function GET(request: NextRequest) {
             WHERE 
                 d.NoTerima LIKE @PBSubkNoDot + '%'
                 AND h.AsalUsul = 'AWAL'
-                AND h.TglBast >= @PeriodeAwal
-                AND h.TglBast < DATEADD(DAY, 1, @PeriodeAkhir)
+                AND h.TglBast >= CONVERT(DATETIME, @PeriodeAwal, 120)
+                AND h.TglBast <= CONVERT(DATETIME, @PeriodeAkhir, 120)
         ),
         NoTerimaRank AS (
             SELECT
@@ -126,7 +132,7 @@ export async function GET(request: NextRequest) {
                 f.TipeSaldo,
                 f.FIFO,
                 f.TglInput,
-                f.PBSubkNoDot + '.25K' + RIGHT('0000' + CAST(@LastSeq + s.rn AS VARCHAR(4)), 4) AS NoKel
+                f.PBSubkNoDot + @NoKelPrefix + RIGHT('0000' + CAST(@LastSeq + s.rn AS VARCHAR(4)), 4) AS NoKel
             FROM FilteredData f
             JOIN NoTerimaSeq s
               ON f.PBSubkNoDot = s.PBSubkNoDot

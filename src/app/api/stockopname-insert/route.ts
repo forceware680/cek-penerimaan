@@ -19,12 +19,17 @@ export async function GET(request: NextRequest) {
     const pa = (searchParams.get('periode_awal') || searchParams.get('start_date') || '2025-01-01').slice(0, 10);
     const pk = (searchParams.get('periode_akhir') || searchParams.get('end_date') || '2025-06-30').slice(0, 10);
 
+    // Get fiscal year and extract 2-digit suffix for NoKel (e.g., 2026 → 26)
+    const fiscalYear = parseInt(searchParams.get('fiscal_year') || String(new Date().getFullYear()));
+    const yearSuffix = String(fiscalYear).slice(-2); // Get last 2 digits
+
     const conn = await getConnection();
 
     await conn.request()
       .input('FilterNoTerima', filterNoTerima)
       .input('StartDate', pa)
       .input('EndDate', pk)
+      .input('YearSuffix', yearSuffix)
       .query(`
         SET NOCOUNT ON;
 
@@ -32,17 +37,18 @@ export async function GET(request: NextRequest) {
             LEFT(@FilterNoTerima,6)+'.'+SUBSTRING(@FilterNoTerima,7,5)+'.'+SUBSTRING(@FilterNoTerima,12,5);
 
         DECLARE @LastSeqTemp INT, @LastSeqKeluar INT, @LastSeq INT;
+        DECLARE @NoKelPrefix NVARCHAR(10) = '.' + @YearSuffix + 'K';
         SELECT @LastSeqTemp = MAX(CAST(RIGHT(NoKel,4) AS INT))
         FROM DBKOP.dbo.TempPersediaanStep1 WITH (NOLOCK)
         WHERE LEFT(NoKel,16)=LEFT(@FilterNoTerima,16)
-          AND NoKel LIKE LEFT(@FilterNoTerima,16)+'.25K%';
+          AND NoKel LIKE LEFT(@FilterNoTerima,16)+@NoKelPrefix+'%';
 
         IF @LastSeqTemp IS NULL
         BEGIN
           SELECT @LastSeqKeluar = MAX(CAST(RIGHT(NoKel,4) AS INT))
           FROM AsetPersediaan90.dbo.KeluarBar WITH (NOLOCK)
           WHERE LEFT(NoKel,16)=LEFT(@FilterNoTerima,16)
-            AND NoKel LIKE LEFT(@FilterNoTerima,16)+'.25K%';
+            AND NoKel LIKE LEFT(@FilterNoTerima,16)+@NoKelPrefix+'%';
         END
         SET @LastSeq = ISNULL(@LastSeqTemp, ISNULL(@LastSeqKeluar,0));
         IF @LastSeq IS NULL SET @LastSeq=0;
@@ -106,7 +112,7 @@ export async function GET(request: NextRequest) {
         IF OBJECT_ID('tempdb..#NoKelPerNoTerima') IS NOT NULL DROP TABLE #NoKelPerNoTerima;
         ;WITH R AS (SELECT NoTerima, MinBAST = MIN(BAST) FROM #Final GROUP BY NoTerima),
         RN AS (SELECT NoTerima, rn = ROW_NUMBER() OVER (ORDER BY MinBAST, NoTerima) FROM R)
-        SELECT NoTerima, NoKel = LEFT(@FilterNoTerima,16) + '.25K' + RIGHT('0000' + CAST(@LastSeq + rn AS VARCHAR(4)), 4)
+        SELECT NoTerima, NoKel = LEFT(@FilterNoTerima,16) + @NoKelPrefix + RIGHT('0000' + CAST(@LastSeq + rn AS VARCHAR(4)), 4)
         INTO #NoKelPerNoTerima FROM RN;
 
         INSERT INTO DBKOP.dbo.TempPersediaanStep1
