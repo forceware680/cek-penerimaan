@@ -6,9 +6,11 @@ Aplikasi Next.js 14+ untuk Cek Penerimaan yang 100% kompatibel dengan Vercel.
 
 - **Cek Saldo Penerimaan** - View dan manage data penerimaan
 - **Tarik Data** - Tarik saldo awal, saldo berjalan, saldo lain-lain, saldo tahun lalu, dan sisa stock
-- **Export Excel** - Export data ke format Excel
-- **Dark/Light Mode** - Toggle antara tema gelap dan terang
+- **Export Excel** - Export data ke format Excel dengan auto-filter dan formula SUM
+- **Dark/Light Mode** - Toggle antara tema gelap dan terang (persisten di localStorage)
 - **Responsive** - Mendukung desktop dan mobile
+- **Rekap Data** - Modal summary dengan total records, barang, saldo, dll
+- **Preset Periode** - Tombol cepat untuk Semester 1, Semester 2, dan Tahunan
 
 ## Tech Stack
 
@@ -88,7 +90,12 @@ cek-penerimaan/
 │   │   │   ├── auth/      # Login, Logout, Me
 │   │   │   ├── saldo-data/
 │   │   │   ├── temp-persediaan-step1/
-│   │   │   └── ...
+│   │   │   ├── tarik-saldo-awal/
+│   │   │   ├── tarik-saldo-berjalan/
+│   │   │   ├── tarik-saldo-lain-lain/
+│   │   │   ├── tarik-saldo-tahun-lalu/
+│   │   │   ├── stockopname-insert/
+│   │   │   └── empty-step1/
 │   │   ├── layout.tsx
 │   │   ├── page.tsx
 │   │   └── globals.css
@@ -107,6 +114,7 @@ cek-penerimaan/
 ├── .env.local             # Environment variables (not committed)
 ├── next.config.ts
 ├── package.json
+├── PROJECT_NOTES.md       # Catatan perkembangan untuk AI Assistant
 └── README.md
 ```
 
@@ -125,7 +133,6 @@ cek-penerimaan/
 | `/api/tarik-saldo-lain-lain` | GET | Pull saldo lain-lain |
 | `/api/tarik-saldo-tahun-lalu` | GET | Pull saldo tahun lalu |
 | `/api/stockopname-insert` | GET | Insert stock opname |
-| `/api/clearalltabletemp` | DELETE | Clear all temp tables |
 
 ## Scripts
 
@@ -136,6 +143,24 @@ npm run start    # Start production server
 npm run lint     # Run ESLint
 ```
 
+## Changelog
+
+### 2026-01-27
+- Fix: Mobile date picker presets (Semester 1, Semester 2, Tahunan) sekarang ditampilkan sebagai tombol terpisah
+- Fix: Icon akun sekarang muncul di header saat mode mobile
+- Fix: Ant Design deprecation warnings (Space direction → orientation, message static → useApp)
+
+### 2026-01-26
+- Fix: Dynamic NoKel year suffix berdasarkan Tahun Anggaran
+- Fix: Date comparison bug pada tarik saldo
+
+### 2026-01-12
+- Fix: Dark mode persistence di localStorage
+
+### 2026-01-06
+- Initial release
+- Migrasi dari Flask+React ke Next.js 14+
+
 ## Developed By
 
 - **Herman Prasetyo** - Developer
@@ -143,4 +168,4 @@ npm run lint     # Run ESLint
 
 ---
 
-© 2024 SI GEPENG WEB
+© 2024-2026 SI GEPENG WEB
