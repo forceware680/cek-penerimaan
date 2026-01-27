@@ -255,3 +255,53 @@ body {
     padding: 24px;
   }
 }
+
+/* Mobile RangePicker Presets - Make presets visible on mobile */
+@media (max-width: 768px) {
+  .ant-picker-dropdown .ant-picker-panel-layout {
+    flex-direction: column !important;
+  }
+
+  .ant-picker-dropdown .ant-picker-presets {
+    max-width: 100% !important;
+    width: 100% !important;
+    border-right: none !important;
+    border-bottom: 1px solid #303030 !important;
+    padding: 8px !important;
+    display: flex !important;
+    flex-wrap: wrap !important;
+    gap: 4px !important;
+  }
+
+  .ant-picker-dropdown .ant-picker-presets ul {
+    display: flex !important;
+    flex-wrap: wrap !important;
+    gap: 4px !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    width: 100% !important;
+  }
+
+  .ant-picker-dropdown .ant-picker-presets li {
+    padding: 6px 12px !important;
+    background: rgba(47, 84, 235, 0.2) !important;
+    border-radius: 4px !important;
+    margin: 0 !important;
+    cursor: pointer !important;
+    white-space: nowrap !important;
+  }
+
+  .ant-picker-dropdown .ant-picker-presets li:hover {
+    background: rgba(47, 84, 235, 0.4) !important;
+  }
+
+  /* Light theme preset styling */
+  .ant-picker-dropdown .ant-picker-presets li {
+    color: #2F54EB !important;
+  }
+}
+
+/* Dark theme mobile preset styling */
+.theme-dark .ant-picker-dropdown .ant-picker-presets li {
+  color: #fff !important;
+}

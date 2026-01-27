@@ -188,6 +188,14 @@ options: {
 
 ## 📝 Changelog
 
+### 2026-01-27
+- ✅ **Fix Mobile Date Picker Presets**: Preset buttons (Tahunan, Semester 1, Semester 2) sekarang muncul di mobile view. Ditampilkan horizontal di bagian atas panel kalender. Perubahan di `globals.css`:
+  - Menambah CSS untuk `.ant-picker-presets` dengan flex-direction column untuk layout mobile
+  - Preset buttons ditampilkan dengan style horizontal wrap
+- ✅ **Fix Mobile Account Icon**: Icon avatar akun sekarang muncul di header saat mode mobile. Perubahan di `Dashboard.tsx`:
+  - Menghapus kondisi `!isMobile` dari user dropdown
+  - Username text disembunyikan di mobile, tapi avatar tetap bisa diklik
+
 ### 2026-01-26
 - ✅ **Dynamic NoKel Year Suffix**: NoKel sekarang di-generate secara dinamis berdasarkan Tahun Anggaran yang dipilih saat login. Contoh: jika pilih Tahun 2026, NoKel akan menjadi `.26K0001` bukan `.25K0001` yang sebelumnya hardcoded. Perubahan di:
   - `TempPersediaanStep1Table.tsx`: Mengirim parameter `fiscal_year` ke API

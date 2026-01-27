@@ -214,18 +214,16 @@ export default function Dashboard() {
                                         />
                                     )}
                                 </Col>
-                                {!isMobile && (
-                                    <Col flex="none" style={{ marginRight: 12 }}>
-                                        <Dropdown menu={{ items: userMenu }} trigger={['click']}>
-                                            <div style={{ cursor: 'pointer', display: 'flex', alignItems: 'center' }}>
-                                                <Avatar size="small" style={{ backgroundColor: '#2F54EB', marginRight: 8 }} icon={<UserOutlined />}>
-                                                    {user?.username?.[0]?.toUpperCase()}
-                                                </Avatar>
-                                                <span style={{ color: isDark ? '#fff' : '#1f1f1f' }}>{user?.username}</span>
-                                            </div>
-                                        </Dropdown>
-                                    </Col>
-                                )}
+                                <Col flex="none" style={{ marginRight: 12 }}>
+                                    <Dropdown menu={{ items: userMenu }} trigger={['click']}>
+                                        <div style={{ cursor: 'pointer', display: 'flex', alignItems: 'center' }}>
+                                            <Avatar size="small" style={{ backgroundColor: '#2F54EB', marginRight: 8 }} icon={<UserOutlined />}>
+                                                {user?.username?.[0]?.toUpperCase()}
+                                            </Avatar>
+                                            {!isMobile && <span style={{ color: isDark ? '#fff' : '#1f1f1f' }}>{user?.username}</span>}
+                                        </div>
+                                    </Dropdown>
+                                </Col>
                                 <Col flex="auto" />
                                 <Col flex="none">
                                     <Tooltip title={isDark ? 'Switch to Light' : 'Switch to Dark'}>

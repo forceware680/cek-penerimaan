@@ -5,7 +5,6 @@ import {
     Table,
     Spin,
     Button,
-    message,
     Modal,
     Input,
     DatePicker,
@@ -13,6 +12,7 @@ import {
     Space,
     Tooltip,
     Dropdown,
+    App,
 } from 'antd';
 import ExcelJS from 'exceljs';
 import { saveAs } from 'file-saver';
@@ -64,6 +64,7 @@ interface PBSubkRecord {
 }
 
 export default function TempPersediaanStep1Table() {
+    const { message } = App.useApp();
     const { user } = useAuth();
     const [data, setData] = useState<DataRecord[]>([]);
     const [loading, setLoading] = useState(true);
@@ -534,7 +535,7 @@ export default function TempPersediaanStep1Table() {
                 cancelText="Batal"
                 width={720}
             >
-                <Space direction="vertical" size={10} style={{ width: '100%' }}>
+                <Space orientation="vertical" size={10} style={{ width: '100%' }}>
                     {isAdmin && (
                         <div style={{ position: 'relative' }}>
                             <Typography.Text style={{ display: 'block', marginBottom: 6 }}>Nama PBSubk</Typography.Text>
@@ -572,8 +573,39 @@ export default function TempPersediaanStep1Table() {
 
                     <div>
                         <Typography.Text style={{ display: 'block', marginBottom: 6 }}>Periode</Typography.Text>
+                        <div style={{ marginBottom: 8, display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+                            <Button
+                                size="small"
+                                type={periode[0].isSame(dayjs().year(fiscalYear).startOf('year'), 'day') && periode[1].isSame(dayjs().year(fiscalYear).month(5).endOf('month'), 'day') ? 'primary' : 'default'}
+                                onClick={() => setPeriode([
+                                    dayjs().year(fiscalYear).startOf('year'),
+                                    dayjs().year(fiscalYear).month(5).endOf('month').hour(23).minute(59).second(59)
+                                ])}
+                            >
+                                Semester 1
+                            </Button>
+                            <Button
+                                size="small"
+                                type={periode[0].isSame(dayjs().year(fiscalYear).month(6).startOf('month'), 'day') && periode[1].isSame(dayjs().year(fiscalYear).endOf('year'), 'day') ? 'primary' : 'default'}
+                                onClick={() => setPeriode([
+                                    dayjs().year(fiscalYear).month(6).startOf('month'),
+                                    dayjs().year(fiscalYear).endOf('year').hour(23).minute(59).second(59)
+                                ])}
+                            >
+                                Semester 2
+                            </Button>
+                            <Button
+                                size="small"
+                                type={periode[0].isSame(dayjs().year(fiscalYear).startOf('year'), 'day') && periode[1].isSame(dayjs().year(fiscalYear).endOf('year'), 'day') ? 'primary' : 'default'}
+                                onClick={() => setPeriode([
+                                    dayjs().year(fiscalYear).startOf('year'),
+                                    dayjs().year(fiscalYear).endOf('year').hour(23).minute(59).second(59)
+                                ])}
+                            >
+                                Tahunan
+                            </Button>
+                        </div>
                         <RangePicker
-                            presets={rangePresets}
                             showTime
                             format="YYYY-MM-DD HH:mm:ss"
                             value={periode}
@@ -591,7 +623,7 @@ export default function TempPersediaanStep1Table() {
                 footer={null}
             >
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
-                    <Space direction="vertical" size={8} style={{ width: '100%' }}>
+                    <Space orientation="vertical" size={8} style={{ width: '100%' }}>
                         <Text strong><DatabaseOutlined /> <span style={{ color: '#ff4d4f' }}>Records:</span> {totalRecords}</Text>
                         <Text strong><ShoppingCartOutlined /> <span style={{ color: '#ff4d4f' }}>Barang:</span> {totalQuantity.toLocaleString()}</Text>
                         <Text strong><WalletOutlined /> <span style={{ color: '#ff4d4f' }}>Saldo Awal:</span> {initialBalance.toLocaleString('id-ID', { style: 'currency', currency: 'IDR' })}</Text>
