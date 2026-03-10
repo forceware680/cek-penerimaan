@@ -61,8 +61,8 @@ export async function GET(request: NextRequest) {
             FROM SO a JOIN AsetPersediaan90.dbo.tutupbukudet b ON a.NoTB = b.NoTB
         ),
         PenerimaanData AS (
-    -- DPA (sumber utama)
-    SELECT DISTINCT
+    -- BLOK 1: PenerimaanDetDPA dengan TglBAST, TglBAST
+    SELECT 
         d.NoTerima,
         d.ObjekPersediaan,
         d.MerkType,
@@ -70,28 +70,27 @@ export async function GET(request: NextRequest) {
         d.Harga,
         d.Kadaluwarsa,
         d.Keterangan,
-        p.TglBast                          AS BAST,
+        p.TglBast AS BAST,
         p.TAG,
         d.ObjekPersediaan + '_' +
-        CONVERT(VARCHAR(8), p.TglBast, 112) + '_' +
-        RIGHT('0' + CAST(DATEPART(HOUR,   p.TglBast) AS VARCHAR(2)), 2) + ':' +
+        CONVERT(VARCHAR(8), p.TglBast, 112) + '_' +      
+        RIGHT('0' + CAST(DATEPART(HOUR,   p.TglBAST) AS VARCHAR(2)), 2) + ':' +
         RIGHT('0' + CAST(DATEPART(MINUTE, p.TglBast) AS VARCHAR(2)), 2) AS FIFO,
-        LEFT(d.NoTerima, 16)                AS PBSubkNoDot,
+        LEFT(d.NoTerima, 16) AS PBSubkNoDot,
         CASE 
-            WHEN d.NoTerima LIKE '%SO%'                        THEN 1
-            WHEN d.NoTerima LIKE '%TL%'                        THEN 2
+            WHEN d.NoTerima LIKE '%SO%' THEN 1
+            WHEN d.NoTerima LIKE '%TL%' THEN 2
             WHEN d.NoTerima LIKE '%T%' AND d.NoTerima NOT LIKE '%TL%' THEN 3
-            ELSE 4 
+            ELSE 4
         END AS PriorityOrder
     FROM AsetPersediaan90.dbo.PenerimaanDetDPA d
-    INNER JOIN AsetPersediaan90.dbo.PenerimaanDPA p 
-        ON d.NoTerima = p.NoTerima
+    JOIN AsetPersediaan90.dbo.PenerimaanDPA p ON d.NoTerima = p.NoTerima
     WHERE d.NoTerima LIKE @FilterNoTerima + '%'
 
-    UNION
+    UNION  -- <-- GANTI UNION ALL JADI UNION (AUTO DISTINCT)
 
-    -- DPANon (sumber tambahan/non-DPA)
-    SELECT DISTINCT
+    -- BLOK 2: PenerimaanDetDPANon dengan TglBAST, TglBAST
+    SELECT 
         d.NoTerima,
         d.ObjekPersediaan,
         d.MerkType,
@@ -99,22 +98,77 @@ export async function GET(request: NextRequest) {
         d.Harga,
         d.Kadaluwarsa,
         d.Keterangan,
-        p.TglBast                          AS BAST,
+        p.TglBast AS BAST,
         p.TAG,
         d.ObjekPersediaan + '_' +
-        CONVERT(VARCHAR(8), p.TglBast, 112) + '_' +
-        RIGHT('0' + CAST(DATEPART(HOUR,   p.TglBast) AS VARCHAR(2)), 2) + ':' +
+        CONVERT(VARCHAR(8), p.TglBast, 112) + '_' +      
+        RIGHT('0' + CAST(DATEPART(HOUR,   p.TglBAST) AS VARCHAR(2)), 2) + ':' +
         RIGHT('0' + CAST(DATEPART(MINUTE, p.TglBast) AS VARCHAR(2)), 2) AS FIFO,
-        LEFT(d.NoTerima, 16)                AS PBSubkNoDot,
+        LEFT(d.NoTerima, 16) AS PBSubkNoDot,
         CASE 
-            WHEN d.NoTerima LIKE '%SO%'                        THEN 1
-            WHEN d.NoTerima LIKE '%TL%'                        THEN 2
+            WHEN d.NoTerima LIKE '%SO%' THEN 1
+            WHEN d.NoTerima LIKE '%TL%' THEN 2
             WHEN d.NoTerima LIKE '%T%' AND d.NoTerima NOT LIKE '%TL%' THEN 3
-            ELSE 4 
+            ELSE 4
         END AS PriorityOrder
     FROM AsetPersediaan90.dbo.PenerimaanDetDPANon d
-    INNER JOIN AsetPersediaan90.dbo.PenerimaanDPANon p 
-        ON d.NoTerima = p.NoTerima
+    JOIN AsetPersediaan90.dbo.PenerimaanDPANon p ON d.NoTerima = p.NoTerima
+    WHERE d.NoTerima LIKE @FilterNoTerima + '%'
+    
+    UNION  -- <-- GANTI UNION ALL JADI UNION (AUTO DISTINCT)
+
+    -- BLOK 3: PenerimaanDetDPA dengan TglBast, TglInput
+    SELECT 
+        d.NoTerima,
+        d.ObjekPersediaan,
+        d.MerkType,
+        d.Jumlah,
+        d.Harga,
+        d.Kadaluwarsa,
+        d.Keterangan,
+        p.TglBast AS BAST,
+        p.TAG,
+        d.ObjekPersediaan + '_' +
+        CONVERT(VARCHAR(8), p.TglBast, 112) + '_' +      
+        RIGHT('0' + CAST(DATEPART(HOUR,   COALESCE(p.TglInput, p.TglBAST)) AS VARCHAR(2)), 2) + ':' +
+        RIGHT('0' + CAST(DATEPART(MINUTE, COALESCE(p.TglInput, p.TglBast)) AS VARCHAR(2)), 2) AS FIFO,
+        LEFT(d.NoTerima, 16) AS PBSubkNoDot,
+        CASE 
+            WHEN d.NoTerima LIKE '%SO%' THEN 1
+            WHEN d.NoTerima LIKE '%TL%' THEN 2
+            WHEN d.NoTerima LIKE '%T%' AND d.NoTerima NOT LIKE '%TL%' THEN 3
+            ELSE 4
+        END AS PriorityOrder
+    FROM AsetPersediaan90.dbo.PenerimaanDetDPA d
+    JOIN AsetPersediaan90.dbo.PenerimaanDPA p ON d.NoTerima = p.NoTerima
+    WHERE d.NoTerima LIKE @FilterNoTerima + '%'
+
+    UNION  -- <-- GANTI UNION ALL JADI UNION (AUTO DISTINCT)
+
+    -- BLOK 4: PenerimaanDetDPANon dengan TglBast, TglInput
+    SELECT 
+        d.NoTerima,
+        d.ObjekPersediaan,
+        d.MerkType,
+        d.Jumlah,
+        d.Harga,
+        d.Kadaluwarsa,
+        d.Keterangan,
+        p.TglBast AS BAST,
+        p.TAG,
+        d.ObjekPersediaan + '_' +
+        CONVERT(VARCHAR(8), p.TglBast, 112) + '_' +      
+        RIGHT('0' + CAST(DATEPART(HOUR,   COALESCE(p.TglInput, p.TglBAST)) AS VARCHAR(2)), 2) + ':' +
+        RIGHT('0' + CAST(DATEPART(MINUTE, COALESCE(p.TglInput, p.TglBast)) AS VARCHAR(2)), 2) AS FIFO,
+        LEFT(d.NoTerima, 16) AS PBSubkNoDot,
+        CASE 
+            WHEN d.NoTerima LIKE '%SO%' THEN 1
+            WHEN d.NoTerima LIKE '%TL%' THEN 2
+            WHEN d.NoTerima LIKE '%T%' AND d.NoTerima NOT LIKE '%TL%' THEN 3
+            ELSE 4
+        END AS PriorityOrder
+    FROM AsetPersediaan90.dbo.PenerimaanDetDPANon d
+    JOIN AsetPersediaan90.dbo.PenerimaanDPANon p ON d.NoTerima = p.NoTerima
     WHERE d.NoTerima LIKE @FilterNoTerima + '%'
 ),
         YML AS (
