@@ -71,6 +71,7 @@ export default function TempPersediaanStep1Table() {
     const [isModalVisible, setIsModalVisible] = useState(false);
     const [isRekapVisible, setRekapVisible] = useState(false);
     const [emptying, setEmptying] = useState(false);
+    const [isTarikLoading, setIsTarikLoading] = useState(false);
     const [pageSize, setPageSize] = useState(10);
     const [currentPage, setCurrentPage] = useState(1);
     const [totalRecords, setTotalRecords] = useState(0);
@@ -190,6 +191,8 @@ export default function TempPersediaanStep1Table() {
     };
 
     const handleOk = async () => {
+        if (isTarikLoading) return; // Cegah double-click
+        setIsTarikLoading(true);
         try {
             let endpoint = '';
             if (selectedAction === 'saldo_awal') endpoint = '/api/tarik-saldo-awal';
@@ -218,6 +221,8 @@ export default function TempPersediaanStep1Table() {
         } catch (error) {
             console.error('Error fetching data:', error);
             message.error('Gagal menarik data.');
+        } finally {
+            setIsTarikLoading(false);
         }
     };
 
@@ -531,9 +536,14 @@ export default function TempPersediaanStep1Table() {
                 open={isModalVisible}
                 onOk={handleOk}
                 onCancel={handleCancel}
-                okText="Tarik"
+                okText={isTarikLoading ? 'Tunggu Sedang Menarik Data...' : 'Tarik'}
                 cancelText="Batal"
                 width={720}
+                confirmLoading={isTarikLoading}
+                okButtonProps={{ disabled: isTarikLoading, loading: isTarikLoading }}
+                cancelButtonProps={{ disabled: isTarikLoading }}
+                closable={!isTarikLoading}
+                maskClosable={false}
             >
                 <Space orientation="vertical" size={10} style={{ width: '100%' }}>
                     {isAdmin && (
