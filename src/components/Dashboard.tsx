@@ -26,8 +26,11 @@ import {
     LogoutOutlined,
     SunOutlined,
     MoonOutlined,
+    AppstoreAddOutlined,
 } from '@ant-design/icons';
 import TempPersediaanStep1Table from './TempPersediaanStep1Table';
+import RequestBarang from './RequestBarang';
+import NotificationBell from './NotificationBell';
 import { useAuth } from '@/context/AuthContext';
 
 const { Header, Content, Footer, Sider } = Layout;
@@ -81,6 +84,7 @@ export default function Dashboard() {
     });
     const [isMobile, setIsMobile] = useState(false);
     const [openNav, setOpenNav] = useState(false);
+    const [currentMenu, setCurrentMenu] = useState('step1');
 
     useEffect(() => {
         const checkMobile = () => setIsMobile(window.innerWidth < 992);
@@ -110,9 +114,15 @@ export default function Dashboard() {
             icon: <CheckOutlined />,
             label: 'Cek Saldo Penerimaan',
         },
+        {
+            key: 'request-barang',
+            icon: <AppstoreAddOutlined />,
+            label: 'Request Kode Barang',
+        },
     ];
 
-    const handleMenuClick = () => {
+    const handleMenuClick = (e: any) => {
+        setCurrentMenu(e.key);
         if (isMobile) setOpenNav(false);
     };
 
@@ -186,7 +196,7 @@ export default function Dashboard() {
                             <Menu
                                 theme="dark"
                                 mode="inline"
-                                selectedKeys={['step1']}
+                                selectedKeys={[currentMenu]}
                                 items={menuItems}
                                 onClick={handleMenuClick}
                             />
@@ -225,6 +235,9 @@ export default function Dashboard() {
                                     </Dropdown>
                                 </Col>
                                 <Col flex="auto" />
+                                <Col flex="none" style={{ marginRight: 16, display: 'flex', alignItems: 'center' }}>
+                                    <NotificationBell />
+                                </Col>
                                 <Col flex="none">
                                     <Tooltip title={isDark ? 'Switch to Light' : 'Switch to Dark'}>
                                         <Switch
@@ -248,7 +261,7 @@ export default function Dashboard() {
                             >
                                 <Menu
                                     mode="inline"
-                                    selectedKeys={['step1']}
+                                    selectedKeys={[currentMenu]}
                                     items={menuItems}
                                     onClick={handleMenuClick}
                                 />
@@ -265,7 +278,8 @@ export default function Dashboard() {
                                     minHeight: 'calc(100vh - 150px)',
                                 }}
                             >
-                                <TempPersediaanStep1Table />
+                                {currentMenu === 'step1' && <TempPersediaanStep1Table />}
+                                {currentMenu === 'request-barang' && <RequestBarang />}
                             </div>
                         </Content>
 
