@@ -8,10 +8,11 @@ export interface UserPayload {
     username: string;
     role: string;
     filter: string | null;
+    opd_name?: string;
 }
 
 export function createJWT(payload: UserPayload, expiresIn: string = '8h'): string {
-    return jwt.sign(payload, JWT_SECRET, { expiresIn });
+    return jwt.sign({ ...payload }, JWT_SECRET, { expiresIn: expiresIn as jwt.SignOptions['expiresIn'] });
 }
 
 export function decodeJWT(token: string): UserPayload | null {
