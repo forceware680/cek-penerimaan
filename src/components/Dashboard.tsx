@@ -285,7 +285,7 @@ export default function Dashboard() {
 
                         <Footer style={{ textAlign: 'center', backgroundColor: 'transparent', padding: 15, color: isDark ? '#9ca3af' : undefined }}>
                             <span style={{ fontSize: 14 }}>
-                                <b>SI GEPENG WEB</b> ©2024 Developed By <b>Herman Prasetyo</b> | Databases By <b>SeML</b>
+                                <b>SI GEPENG WEB</b> ©2024 Developed By <b>Quantum Aset</b> | Databases By <b>SeML</b> | <a href="https://github.com/forceware680/cek-penerimaan/commits/master/">Changelog</a>
                             </span>
                         </Footer>
                     </Layout>

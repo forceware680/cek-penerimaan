@@ -31,6 +31,7 @@ export default function RequestBarang() {
     // Modal states
     const [approveModalOpen, setApproveModalOpen] = useState(false);
     const [selectedRequest, setSelectedRequest] = useState<any>(null);
+    const [selectedRowKeys, setSelectedRowKeys] = useState<React.Key[]>([]);
 
     const fetchData = useCallback(async () => {
         setLoading(true);
@@ -158,6 +159,83 @@ export default function RequestBarang() {
         });
     };
 
+    const handleBulkReject = () => {
+        let catatan = '';
+        antModal.confirm({
+            title: `Tolak ${selectedRowKeys.length} Permintaan`,
+            content: (
+                <div style={{ marginTop: 16 }}>
+                    <Text>Berikan alasan penolakan massal:</Text>
+                    <TextArea 
+                        rows={3} 
+                        onChange={(e) => catatan = e.target.value} 
+                        placeholder="Semua permintaan yang dipilih akan ditolak dengan alasan ini"
+                        style={{ marginTop: 8 }}
+                    />
+                </div>
+            ),
+            okText: 'Tolak Semua',
+            okType: 'danger',
+            cancelText: 'Batal',
+            onOk: async () => {
+                if (!catatan.trim()) {
+                    antMessage.warning('Harap isi catatan penolakan');
+                    return Promise.reject();
+                }
+                setLoading(true);
+                try {
+                    await Promise.all(selectedRowKeys.map(key => 
+                        fetch('/api/request-barang/reject', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ RequestID: key, CatatanAdmin: catatan }),
+                        })
+                    ));
+                    antMessage.success(`${selectedRowKeys.length} permintaan berhasil ditolak`);
+                    setSelectedRowKeys([]);
+                    fetchData();
+                } catch (error) {
+                    antMessage.error('Terjadi kesalahan memproses penolakan massal');
+                } finally {
+                    setLoading(false);
+                }
+            }
+        });
+    };
+
+    const handleBulkApprove = () => {
+        antModal.confirm({
+            title: `Setujui ${selectedRowKeys.length} Permintaan`,
+            content: `Anda yakin menyetujui ${selectedRowKeys.length} permintaan sekaligus? ID PLU akan menggunakan usulan awal pengguna (jika ada) atau di-generate otomatis untuk tipe NON.`,
+            okText: 'Setujui Semua',
+            cancelText: 'Batal',
+            okButtonProps: { style: { background: '#52c41a', borderColor: '#52c41a' } },
+            onOk: async () => {
+                setLoading(true);
+                try {
+                    await Promise.all(selectedRowKeys.map(key => {
+                        const req = pendingRequests.find(r => r.RequestID === key);
+                        return fetch('/api/request-barang/approve', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ 
+                                RequestID: key, 
+                                IDPLU_Req: req?.IDPLU_Req || ''
+                            }),
+                        });
+                    }));
+                    antMessage.success(`${selectedRowKeys.length} permintaan berhasil disetujui`);
+                    setSelectedRowKeys([]);
+                    fetchData();
+                } catch (error) {
+                    antMessage.error('Terjadi kesalahan memproses persetujuan massal');
+                } finally {
+                    setLoading(false);
+                }
+            }
+        });
+    };
+
     const getStatusTag = (status: string) => {
         switch (status) {
             case 'PENDING': return <Tag color="blue">MENUNGGU</Tag>;
@@ -168,7 +246,7 @@ export default function RequestBarang() {
     };
 
     const historyColumns = [
-        { title: 'Tgl', dataIndex: 'CreatedAt', key: 'CreatedAt', render: (val: any) => new Date(val).toLocaleDateString(), width: 100 },
+        { title: 'Tgl', dataIndex: 'CreatedAt', key: 'CreatedAt', render: (val: any) => val ? new Date(typeof val === 'string' ? val.replace('Z', '') : val).toLocaleDateString('id-ID') : '-', width: 100 },
         { 
             title: isAdmin ? 'User / OPD' : 'Akun (ObjekRSSub)', 
             key: 'user_opd', 
@@ -209,7 +287,7 @@ export default function RequestBarang() {
     ];
 
     const adminColumns = [
-        { title: 'Tgl Submit', dataIndex: 'CreatedAt', key: 'CreatedAt', render: (val: any) => new Date(val).toLocaleString(), width: 150 },
+        { title: 'Tgl Submit', dataIndex: 'CreatedAt', key: 'CreatedAt', render: (val: any) => val ? new Date(typeof val === 'string' ? val.replace('Z', '') : val).toLocaleString('id-ID') : '-', width: 150 },
         { title: 'User / OPD', key: 'user', render: (_: any, record: any) => (
             <div>
                 <Text strong>{record.Username}</Text>
@@ -321,8 +399,21 @@ export default function RequestBarang() {
                                         </Badge>
                                     ),
                                     children: (
-                                        <Card bordered={false} style={{ borderRadius: 12 }} className="table-card-wrapper">
+                                        <Card variant="borderless" style={{ borderRadius: 12 }} className="table-card-wrapper">
+                                            {selectedRowKeys.length > 0 && (
+                                                <div style={{ marginBottom: 16, padding: '12px 16px', background: 'var(--ant-color-primary-bg, #e6f7ff)', borderRadius: 8, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                                    <Text strong style={{ color: 'var(--ant-color-primary, #1890ff)' }}>{selectedRowKeys.length} permintaan dipilih</Text>
+                                                    <Space>
+                                                        <Button type="primary" onClick={handleBulkApprove} style={{ background: '#52c41a', borderColor: '#52c41a', borderRadius: 6 }} icon={<CheckCircleOutlined />}>Approve Semua</Button>
+                                                        <Button danger onClick={handleBulkReject} icon={<CloseCircleOutlined />} style={{ borderRadius: 6 }}>Reject Semua</Button>
+                                                    </Space>
+                                                </div>
+                                            )}
                                             <Table 
+                                                rowSelection={{
+                                                    selectedRowKeys,
+                                                    onChange: (keys) => setSelectedRowKeys(keys)
+                                                }}
                                                 columns={adminColumns} 
                                                 dataSource={pendingRequests} 
                                                 rowKey="RequestID" 
@@ -340,7 +431,7 @@ export default function RequestBarang() {
                                     children: (
                                         <div style={{ maxWidth: 680, margin: '24px auto' }}>
                                             <Card 
-                                                bordered={false}
+                                                variant="borderless"
                                                 style={{ 
                                                     borderRadius: 16,
                                                     background: 'var(--ant-color-fill-alter, #fafafa)',
@@ -467,7 +558,7 @@ export default function RequestBarang() {
                                 key: 'history',
                                 label: (<span style={{ fontWeight: 500 }}><HistoryOutlined /> {isAdmin ? 'Semua Riwayat' : 'Riwayat Saya'}</span>),
                                 children: (
-                                    <Card bordered={false} style={{ borderRadius: 12 }}>
+                                    <Card variant="borderless" style={{ borderRadius: 12 }}>
                                         <Table 
                                             columns={historyColumns} 
                                             dataSource={history} 
@@ -494,7 +585,7 @@ export default function RequestBarang() {
                     okText="Setujui"
                     okButtonProps={{ type: 'primary', style: { background: '#52c41a', borderColor: '#52c41a' } }}
                     centered
-                    bodyStyle={{ padding: '24px 0 0' }}
+                    styles={{ body: { padding: '24px 0 0' } }}
                 >
                     <div style={{ marginBottom: 24 }}>
                         <Paragraph>Anda akan menyetujui permintaan berikut:</Paragraph>
@@ -530,7 +621,7 @@ export default function RequestBarang() {
 function AlertInfo({ text }: { text: string }) {
     return (
         <Alert 
-            message={<span style={{ fontSize: 14 }}>{text}</span>} 
+            title={<span style={{ fontSize: 14 }}>{text}</span>} 
             type="info" 
             showIcon 
             style={{ 
