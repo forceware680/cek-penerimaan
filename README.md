@@ -42,7 +42,7 @@ Aplikasi Next.js 14+ untuk Cek Penerimaan yang 100% kompatibel dengan Vercel.
 3. Buat file `.env.local` dengan isi:
    ```
    DB_SERVER=your_server_ip
-   DB_DATABASE=dbkop
+   DB_DATABASE=database
    DB_UID=your_username
    DB_PWD=your_password
    JWT_SECRET=your-secure-secret-key
@@ -144,6 +144,9 @@ npm run lint     # Run ESLint
 ```
 
 ## Changelog
+
+### 2026-04-22
+- Penambahan Fitur 'Request Kode Barang Persediaan' dengan sistem Approve dan Reject
 
 ### 2026-01-27
 - Fix: Mobile date picker presets (Semester 1, Semester 2, Tahunan) sekarang ditampilkan sebagai tombol terpisah
