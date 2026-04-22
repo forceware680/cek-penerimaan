@@ -213,9 +213,10 @@ export default function RequestBarang() {
             onOk: async () => {
                 setLoading(true);
                 try {
-                    await Promise.all(selectedRowKeys.map(key => {
+                    let successCount = 0;
+                    for (const key of selectedRowKeys) {
                         const req = pendingRequests.find(r => r.RequestID === key);
-                        return fetch('/api/request-barang/approve', {
+                        const res = await fetch('/api/request-barang/approve', {
                             method: 'POST',
                             headers: { 'Content-Type': 'application/json' },
                             body: JSON.stringify({ 
@@ -223,8 +224,15 @@ export default function RequestBarang() {
                                 IDPLU_Req: req?.IDPLU_Req || ''
                             }),
                         });
-                    }));
-                    antMessage.success(`${selectedRowKeys.length} permintaan berhasil disetujui`);
+                        if (res.ok) successCount++;
+                    }
+                    if (successCount === selectedRowKeys.length) {
+                        antMessage.success(`${successCount} permintaan berhasil disetujui`);
+                    } else if (successCount > 0) {
+                        antMessage.warning(`Hanya ${successCount} dari ${selectedRowKeys.length} permintaan berhasil disetujui`);
+                    } else {
+                        antMessage.error('Seluruh permintaan spesifik gagal disetujui');
+                    }
                     setSelectedRowKeys([]);
                     fetchData();
                 } catch (error) {
@@ -419,7 +427,7 @@ export default function RequestBarang() {
                                                 rowKey="RequestID" 
                                                 loading={loading}
                                                 scroll={{ x: 900 }}
-                                                pagination={{ pageSize: 10 }}
+                                                pagination={{ defaultPageSize: 10, showSizeChanger: true }}
                                             />
                                         </Card>
                                     )
@@ -565,7 +573,7 @@ export default function RequestBarang() {
                                             rowKey="RequestID" 
                                             loading={loading}
                                             scroll={{ x: 900 }}
-                                            pagination={{ pageSize: 15 }}
+                                            pagination={{ defaultPageSize: 15, showSizeChanger: true }}
                                             locale={{ emptyText: isAdmin ? <Empty description="Belum ada riwayat pengajuan" image={Empty.PRESENTED_IMAGE_SIMPLE} /> : <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} /> }}
                                         />
                                     </Card>

@@ -40,7 +40,7 @@ export default function NotificationBell() {
                 fetchNotifications();
                 if (!id) {
                     antNotification.success({
-                        message: 'Berhasil',
+                        title: 'Berhasil',
                         description: 'Semua notifikasi ditandai telah dibaca',
                     });
                 }
