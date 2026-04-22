@@ -2,11 +2,11 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { 
     Table, Form, Input, Select, Button, Tag, Space, Card, 
     Row, Col, Modal, Typography, App as AntApp, Tabs, 
-    Badge, Empty, Spin, Segmented, Alert
+    Badge, Empty, Spin, Segmented, Alert, Tooltip
 } from 'antd';
 import { 
     PlusOutlined, HistoryOutlined, CheckCircleOutlined, 
-    CloseCircleOutlined, InfoCircleOutlined, SendOutlined 
+    CloseCircleOutlined, InfoCircleOutlined, SendOutlined, ReloadOutlined 
 } from '@ant-design/icons';
 import { useAuth } from '@/context/AuthContext';
 
@@ -188,14 +188,24 @@ export default function RequestBarang() {
             dataIndex: 'StaID', 
             key: 'StaID', 
             render: (val: string, record: any) => (
-                <Space direction="vertical" size={0}>
+                <div style={{ display: 'flex', flexDirection: 'column' }}>
                     <Text code style={{ fontSize: 11 }}>{val}</Text>
                     {record.IDPLU_Req && <Text type="secondary" style={{ fontSize: 10 }}>{record.IDPLU_Req}</Text>}
-                </Space>
+                </div>
             )
         },
         { title: 'Status', dataIndex: 'Status', key: 'Status', render: (val: string) => getStatusTag(val) },
-        { title: 'Catatan Admin', dataIndex: 'CatatanAdmin', key: 'CatatanAdmin', ellipsis: true },
+        { 
+            title: 'Catatan Admin', 
+            dataIndex: 'CatatanAdmin', 
+            key: 'CatatanAdmin', 
+            width: 220,
+            render: (val: string) => val ? (
+                <Text ellipsis={{ tooltip: { title: val, color: 'blue' } }} style={{ width: 200, display: 'inline-block' }}>
+                    {val}
+                </Text>
+            ) : '-'
+        },
     ];
 
     const adminColumns = [
@@ -218,216 +228,316 @@ export default function RequestBarang() {
             title: 'Aksi', 
             key: 'action', 
             fixed: 'right' as const,
-            width: 150,
+            width: 100,
+            align: 'center' as const,
             render: (_: any, record: any) => (
-                <Space>
-                    <Button 
-                        type="primary" 
-                        icon={<CheckCircleOutlined />} 
-                        onClick={() => {
-                            setSelectedRequest(record);
-                            setApproveModalOpen(true);
-                            approveForm.setFieldsValue({ IDPLU_Req: record.IDPLU_Req });
-                        }}
-                    >
-                        Approve
-                    </Button>
-                    <Button 
-                        danger 
-                        icon={<CloseCircleOutlined />} 
-                        onClick={() => handleReject(record)}
-                    >
-                        Reject
-                    </Button>
+                <Space size="small">
+                    <Tooltip title="Approve Permintaan">
+                        <Button 
+                            type="primary" 
+                            shape="circle"
+                            icon={<CheckCircleOutlined />} 
+                            onClick={() => {
+                                setSelectedRequest(record);
+                                setApproveModalOpen(true);
+                                approveForm.setFieldsValue({ IDPLU_Req: record.IDPLU_Req });
+                            }}
+                            style={{ 
+                                background: 'linear-gradient(90deg, #52c41a, #73d13d)', 
+                                border: 'none', 
+                                boxShadow: '0 2px 8px rgba(82, 196, 26, 0.2)' 
+                            }}
+                        />
+                    </Tooltip>
+                    <Tooltip title="Tolak Permintaan">
+                        <Button 
+                            danger 
+                            shape="circle"
+                            icon={<CloseCircleOutlined />} 
+                            onClick={() => handleReject(record)}
+                        />
+                    </Tooltip>
                 </Space>
             )
         },
     ];
 
     return (
-        <Card bordered={false} styles={{ body: { padding: 0 } }}>
-            <div style={{ padding: '0 16px 16px' }}>
-                <Row justify="space-between" align="middle" style={{ marginBottom: 16 }}>
-                    <Col>
-                        <Title level={4} style={{ margin: 0 }}>
-                            {isAdmin ? 'Manajemen Request Kode Barang' : 'Request Kode Barang Baru'}
-                        </Title>
-                    </Col>
-                    <Col>
-                        <Button icon={<HistoryOutlined />} onClick={fetchData} loading={loading}>Refresh</Button>
-                    </Col>
-                </Row>
-
-                <Tabs 
-                    activeKey={activeTab} 
-                    onChange={setActiveTab}
-                    items={[
-                        ...(isAdmin ? [
-                            {
-                                key: 'pending',
-                                label: (
-                                    <Badge count={pendingRequests.length} offset={[12, 0]} size="small">
-                                        Pending Request
-                                    </Badge>
-                                ),
-                                children: (
-                                    <Table 
-                                        columns={adminColumns} 
-                                        dataSource={pendingRequests} 
-                                        rowKey="RequestID" 
-                                        loading={loading}
-                                        scroll={{ x: 800 }}
-                                    />
-                                )
-                            }
-                        ] : [
-                            {
-                                key: 'form',
-                                label: (<span><PlusOutlined /> Request Form</span>),
-                                children: (
-                                    <div style={{ maxWidth: 600, margin: '20px auto' }}>
-                                        <Card title="Form Pengajuan" size="small">
-                                            <Form 
-                                                form={form} 
-                                                layout="vertical" 
-                                                onFinish={onFinish}
-                                                initialValues={{ StaID: 'NON' }}
-                                            >
-                                                <Form.Item 
-                                                    name="ObjekRSSub" 
-                                                    label="Akun Persediaan" 
-                                                    rules={[{ required: true, message: 'Harap pilih akun' }]}
-                                                >
-                                                    <Select 
-                                                        showSearch
-                                                        placeholder="Pilih Akun Persediaan"
-                                                        optionFilterProp="children"
-                                                        filterOption={(input, option: any) =>
-                                                            (option?.label ?? '').toLowerCase().includes(input.toLowerCase())
-                                                        }
-                                                        options={objekRSSubList.map(item => ({
-                                                            value: item.ObjekRSSub,
-                                                            label: `[${item.ObjekRSSub}] ${item.KetObjekRSSub}`
-                                                        }))}
-                                                    />
-                                                </Form.Item>
-
-                                                <Form.Item name="StaID" label="Jenis Pengajuan">
-                                                    <Segmented 
-                                                        block
-                                                        options={[
-                                                            { label: 'Input PLU Manual', value: 'PLU' },
-                                                            { label: 'Barang Baru (NON)', value: 'NON' },
-                                                        ]} 
-                                                    />
-                                                </Form.Item>
-
-                                                <Form.Item noStyle shouldUpdate={(prev, curr) => prev.StaID !== curr.StaID}>
-                                                    {({ getFieldValue }) => getFieldValue('StaID') === 'PLU' ? (
-                                                        <Form.Item 
-                                                            name="IDPLU_Req" 
-                                                            label="ID PLU (Wajib Untuk PLU)" 
-                                                            rules={[{ required: true, message: 'Harap isi ID PLU' }]}
-                                                        >
-                                                            <Input placeholder="Contoh: 12345" />
-                                                        </Form.Item>
-                                                    ) : null}
-                                                </Form.Item>
-
-                                                <Form.Item 
-                                                    name="Keterangan" 
-                                                    label="Nama/Deskripsi Barang" 
-                                                    rules={[{ required: true, message: 'Harap isi nama barang' }]}
-                                                >
-                                                    <Input placeholder="Contoh: Kertas HVS A4 80gr" />
-                                                </Form.Item>
-
-                                                <Form.Item 
-                                                    name="Satuan" 
-                                                    label="Satuan" 
-                                                    rules={[{ required: true, message: 'Harap pilih satuan' }]}
-                                                >
-                                                    <Select 
-                                                        showSearch
-                                                        placeholder="Pilih Satuan"
-                                                        options={satuanList.map(item => ({
-                                                            value: item.Satuan,
-                                                            label: item.Satuan
-                                                        }))}
-                                                    />
-                                                </Form.Item>
-
-                                                <Form.Item>
-                                                    <Button type="primary" htmlType="submit" icon={<SendOutlined />} block loading={loading}>
-                                                        Kirim Permintaan
-                                                    </Button>
-                                                </Form.Item>
-                                            </Form>
-                                        </Card>
-                                        <div style={{ marginTop: 16 }}>
-                                            <AlertInfo text="Admin akan meninjau permintaan Anda. Notifikasi akan muncul di lonceng saat status berubah." />
-                                        </div>
-                                    </div>
-                                )
-                            }
-                        ]),
-                        {
-                            key: 'history',
-                            label: (<span><HistoryOutlined /> {isAdmin ? 'Semua Riwayat' : 'Riwayat Saya'}</span>),
-                            children: (
-                                <Table 
-                                    columns={historyColumns} 
-                                    dataSource={history} 
-                                    rowKey="RequestID" 
-                                    loading={loading}
-                                    scroll={{ x: 800 }}
-                                    locale={{ emptyText: isAdmin ? <Empty description="Belum ada riwayat pengajuan" /> : <Empty /> }}
-                                />
-                            )
-                        }
-                    ]}
-                />
-            </div>
-
-            {/* Approval Modal */}
-            <Modal
-                title="Konfirmasi Persetujuan"
-                open={approveModalOpen}
-                onOk={() => approveForm.submit()}
-                onCancel={() => setApproveModalOpen(false)}
-                confirmLoading={loading}
-                okText="Setujui"
-            >
-                <div style={{ marginBottom: 16 }}>
-                    <Paragraph>Anda akan menyetujui permintaan berikut:</Paragraph>
-                    <Card size="small" type="inner">
-                        <Text strong>{selectedRequest?.Keterangan}</Text>
-                        <br />
-                        <Text type="secondary">{selectedRequest?.Satuan} | {selectedRequest?.StaID}</Text>
-                    </Card>
+        <div>
+            <div style={{ overflow: 'hidden' }}>
+                {/* Header Section */}
+                <div style={{ 
+                    padding: '24px 32px', 
+                    borderBottom: '1px solid var(--ant-color-border-secondary, #f0f0f0)'
+                }}>
+                    <Row justify="space-between" align="middle" gutter={[16, 16]}>
+                        <Col xs={24} sm={16}>
+                            <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+                                <Title level={3} style={{ 
+                                    margin: 0, 
+                                    fontWeight: 700,
+                                    background: 'linear-gradient(90deg, #1890ff 0%, #722ed1 100%)',
+                                    WebkitBackgroundClip: 'text',
+                                    WebkitTextFillColor: 'transparent',
+                                }}>
+                                    {isAdmin ? 'Manajemen Request Kode Barang' : 'Request Kode Barang Baru'}
+                                </Title>
+                                <Text type="secondary" style={{ fontSize: 13 }}>
+                                    {isAdmin 
+                                        ? 'Kelola persetujuan pengajuan kode barang dan PLU dari pengguna.' 
+                                        : 'Ajukan permintaan kode barang atau PLU baru Anda di sini.'}
+                                </Text>
+                            </div>
+                        </Col>
+                        <Col xs={24} sm={8} style={{ textAlign: 'right' }}>
+                            <Button 
+                                type="primary" 
+                                ghost 
+                                icon={<ReloadOutlined />} 
+                                onClick={fetchData} 
+                                loading={loading}
+                                size="large"
+                                style={{ borderRadius: 8, width: '100%', maxWidth: 140 }}
+                            >
+                                Refresh
+                            </Button>
+                        </Col>
+                    </Row>
                 </div>
-                <Form form={approveForm} layout="vertical" onFinish={handleApprove}>
-                    <Form.Item 
-                        name="IDPLU_Req" 
-                        label="Final ID PLU" 
-                        extra={selectedRequest?.StaID === 'NON' ? 'ID PLU akan di-generate otomatis jika dikosongkan' : 'Inputkan ID PLU yang akan digunakan'}
-                        rules={selectedRequest?.StaID === 'PLU' ? [{ required: true, message: 'Harap isi ID PLU' }] : []}
-                    >
-                        <Input placeholder={selectedRequest?.StaID === 'NON' ? 'Otomatis' : 'Input ID PLU'} />
-                    </Form.Item>
-                </Form>
-            </Modal>
-        </Card>
+
+                <div style={{ padding: '0 24px 24px' }}>
+                    <Tabs 
+                        activeKey={activeTab} 
+                        onChange={setActiveTab}
+                        size="large"
+                        tabBarStyle={{ marginBottom: 24, paddingTop: 16 }}
+                        items={[
+                            ...(isAdmin ? [
+                                {
+                                    key: 'pending',
+                                    label: (
+                                        <Badge count={pendingRequests.length} offset={[16, 0]} size="small" color="#f5222d">
+                                            <span style={{ paddingRight: 8, fontWeight: 500 }}><InfoCircleOutlined /> Menunggu Persetujuan</span>
+                                        </Badge>
+                                    ),
+                                    children: (
+                                        <Card bordered={false} style={{ borderRadius: 12 }} className="table-card-wrapper">
+                                            <Table 
+                                                columns={adminColumns} 
+                                                dataSource={pendingRequests} 
+                                                rowKey="RequestID" 
+                                                loading={loading}
+                                                scroll={{ x: 900 }}
+                                                pagination={{ pageSize: 10 }}
+                                            />
+                                        </Card>
+                                    )
+                                }
+                            ] : [
+                                {
+                                    key: 'form',
+                                    label: (<span style={{ fontWeight: 500 }}><PlusOutlined /> Request Form</span>),
+                                    children: (
+                                        <div style={{ maxWidth: 680, margin: '24px auto' }}>
+                                            <Card 
+                                                bordered={false}
+                                                style={{ 
+                                                    borderRadius: 16,
+                                                    background: 'var(--ant-color-fill-alter, #fafafa)',
+                                                    border: '1px solid var(--ant-color-border-secondary, #f0f0f0)'
+                                                }}
+                                                styles={{ 
+                                                    header: { padding: '20px 24px', borderBottom: '1px solid var(--ant-color-border-secondary, #f0f0f0)' },
+                                                    body: { padding: '32px 24px' }
+                                                }}
+                                                title={
+                                                    <Space>
+                                                        <div style={{ padding: 8, background: 'rgba(24, 144, 255, 0.15)', borderRadius: 8, display: 'flex' }}>
+                                                            <PlusOutlined style={{ color: '#1890ff', fontSize: 16 }} />
+                                                        </div>
+                                                        <Text strong style={{ fontSize: 16, letterSpacing: 0.5 }}>Form Pengajuan</Text>
+                                                    </Space>
+                                                }
+                                            >
+                                                <Form 
+                                                    form={form} 
+                                                    layout="vertical" 
+                                                    onFinish={onFinish}
+                                                    initialValues={{ StaID: 'NON' }}
+                                                    requiredMark="optional"
+                                                    size="large"
+                                                >
+                                                    <Form.Item 
+                                                        name="ObjekRSSub" 
+                                                        label={<Text strong>Akun Persediaan</Text>}
+                                                        rules={[{ required: true, message: 'Harap pilih akun' }]}
+                                                    >
+                                                        <Select 
+                                                            showSearch
+                                                            placeholder="-- Silahkan Pilih Akun Persediaan --"
+                                                            optionFilterProp="children"
+                                                            filterOption={(input, option: any) =>
+                                                                (option?.label ?? '').toLowerCase().includes(input.toLowerCase())
+                                                            }
+                                                            options={objekRSSubList.map(item => ({
+                                                                value: item.ObjekRSSub,
+                                                                label: `[${item.ObjekRSSub}] ${item.KetObjekRSSub}`
+                                                            }))}
+                                                        />
+                                                    </Form.Item>
+
+                                                    <Form.Item name="StaID" label={<Text strong>Jenis Pengajuan</Text>}>
+                                                        <Segmented 
+                                                            block
+                                                            size="large"
+                                                            options={[
+                                                                { label: 'Input PLU Manual', value: 'PLU' },
+                                                                { label: 'Barang Baru (NON)', value: 'NON' },
+                                                            ]} 
+                                                        />
+                                                    </Form.Item>
+
+                                                    <Form.Item noStyle shouldUpdate={(prev, curr) => prev.StaID !== curr.StaID}>
+                                                        {({ getFieldValue }) => getFieldValue('StaID') === 'PLU' ? (
+                                                            <Form.Item 
+                                                                name="IDPLU_Req" 
+                                                                label={<Text strong>ID PLU <Text type="secondary">(Wajib untuk PLU)</Text></Text>}
+                                                                rules={[{ required: true, message: 'Harap isi ID PLU' }]}
+                                                            >
+                                                                <Input placeholder="Contoh: 12345" />
+                                                            </Form.Item>
+                                                        ) : null}
+                                                    </Form.Item>
+
+                                                    <Form.Item 
+                                                        name="Keterangan" 
+                                                        label={<Text strong>Nama/Deskripsi Barang</Text>}
+                                                        rules={[{ required: true, message: 'Harap isi nama barang' }]}
+                                                    >
+                                                        <Input placeholder="Contoh: Kertas HVS A4 80gr" />
+                                                    </Form.Item>
+
+                                                    <Form.Item 
+                                                        name="Satuan" 
+                                                        label={<Text strong>Satuan Barang</Text>}
+                                                        rules={[{ required: true, message: 'Harap pilih satuan' }]}
+                                                        style={{ marginBottom: 32 }}
+                                                    >
+                                                        <Select 
+                                                            showSearch
+                                                            placeholder="-- Silahkan Pilih Satuan --"
+                                                            options={satuanList.map(item => ({
+                                                                value: item.Satuan,
+                                                                label: item.Satuan
+                                                            }))}
+                                                        />
+                                                    </Form.Item>
+
+                                                    <Form.Item style={{ marginBottom: 0 }}>
+                                                        <Button 
+                                                            type="primary" 
+                                                            htmlType="submit" 
+                                                            icon={<SendOutlined />} 
+                                                            block 
+                                                            loading={loading}
+                                                            size="large"
+                                                            style={{ 
+                                                                height: 48, 
+                                                                borderRadius: 8, 
+                                                                fontSize: 16,
+                                                                fontWeight: 600,
+                                                                background: 'linear-gradient(90deg, #1890ff, #2f54eb)',
+                                                                border: 'none',
+                                                                boxShadow: '0 4px 12px rgba(24, 144, 255, 0.4)'
+                                                            }}
+                                                        >
+                                                            Kirim Permintaan
+                                                        </Button>
+                                                    </Form.Item>
+                                                </Form>
+                                            </Card>
+                                            <div style={{ marginTop: 24, textAlign: 'center' }}>
+                                                <AlertInfo text="Admin akan meninjau permintaan Anda. Notifikasi akan muncul di lonceng saat status berubah." />
+                                            </div>
+                                        </div>
+                                    )
+                                }
+                            ]),
+                            {
+                                key: 'history',
+                                label: (<span style={{ fontWeight: 500 }}><HistoryOutlined /> {isAdmin ? 'Semua Riwayat' : 'Riwayat Saya'}</span>),
+                                children: (
+                                    <Card bordered={false} style={{ borderRadius: 12 }}>
+                                        <Table 
+                                            columns={historyColumns} 
+                                            dataSource={history} 
+                                            rowKey="RequestID" 
+                                            loading={loading}
+                                            scroll={{ x: 900 }}
+                                            pagination={{ pageSize: 15 }}
+                                            locale={{ emptyText: isAdmin ? <Empty description="Belum ada riwayat pengajuan" image={Empty.PRESENTED_IMAGE_SIMPLE} /> : <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} /> }}
+                                        />
+                                    </Card>
+                                )
+                            }
+                        ]}
+                    />
+                </div>
+
+                {/* Approval Modal */}
+                <Modal
+                    title={<Space><CheckCircleOutlined style={{ color: '#52c41a' }} />Konfirmasi Persetujuan</Space>}
+                    open={approveModalOpen}
+                    onOk={() => approveForm.submit()}
+                    onCancel={() => setApproveModalOpen(false)}
+                    confirmLoading={loading}
+                    okText="Setujui"
+                    okButtonProps={{ type: 'primary', style: { background: '#52c41a', borderColor: '#52c41a' } }}
+                    centered
+                    bodyStyle={{ padding: '24px 0 0' }}
+                >
+                    <div style={{ marginBottom: 24 }}>
+                        <Paragraph>Anda akan menyetujui permintaan berikut:</Paragraph>
+                        <Card size="small" variant="borderless" style={{ background: 'var(--ant-color-fill-tertiary, rgba(0,0,0,0.04))' }}>
+                            <Text strong style={{ fontSize: 16 }}>{selectedRequest?.Keterangan}</Text>
+                            <div style={{ marginTop: 8 }}>
+                                <Tag color="blue">{selectedRequest?.Satuan}</Tag>
+                                <Tag color="purple">{selectedRequest?.StaID}</Tag>
+                            </div>
+                        </Card>
+                    </div>
+                    <Form form={approveForm} layout="vertical" size="large" onFinish={handleApprove}>
+                        <Form.Item 
+                            name="IDPLU_Req" 
+                            label={<Text strong>Final ID PLU</Text>}
+                            extra={
+                                <Text type="secondary" style={{ fontSize: 12 }}>
+                                    <InfoCircleOutlined style={{ marginRight: 4 }} />
+                                    {selectedRequest?.StaID === 'NON' ? 'ID PLU akan di-generate otomatis jika dikosongkan' : 'Inputkan ID PLU yang akan digunakan'}
+                                </Text>
+                            }
+                            rules={selectedRequest?.StaID === 'PLU' ? [{ required: true, message: 'Harap isi ID PLU' }] : []}
+                        >
+                            <Input placeholder={selectedRequest?.StaID === 'NON' ? 'Dikosongkan = Otomatis' : 'Input ID PLU'} />
+                        </Form.Item>
+                    </Form>
+                </Modal>
+            </div>
+        </div>
     );
 }
 
 function AlertInfo({ text }: { text: string }) {
     return (
         <Alert 
-            message={<span style={{ fontSize: 13 }}>{text}</span>} 
+            message={<span style={{ fontSize: 14 }}>{text}</span>} 
             type="info" 
             showIcon 
-            style={{ borderRadius: 8 }}
+            style={{ 
+                borderRadius: 12, 
+                display: 'inline-flex',
+                boxShadow: '0 4px 12px rgba(0,0,0,0.05)'
+            }}
         />
     );
 }
