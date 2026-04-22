@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { Badge, Popover, List, Button, Typography, Space, App } from 'antd';
+import { Badge, Popover, Button, Typography, Space, App } from 'antd';
 import { BellOutlined, CheckOutlined, InfoCircleOutlined } from '@ant-design/icons';
 
 const { Text } = Typography;
@@ -62,31 +62,38 @@ export default function NotificationBell() {
                     </Button>
                 )}
             </div>
-            <List
-                dataSource={notifications}
-                locale={{ emptyText: 'Tidak ada notifikasi baru' }}
-                renderItem={(item) => (
-                    <List.Item
-                        key={item.NotificationID}
-                        actions={[
-                            <Button type="text" size="small" icon={<CheckOutlined />} onClick={() => markAsRead(item.NotificationID)} />
-                        ]}
-                    >
-                        <List.Item.Meta
-                            avatar={<InfoCircleOutlined style={{ color: '#2F54EB', marginTop: 4 }} />}
-                            description={
+            <div style={{ maxHeight: 400, overflowY: 'auto' }}>
+                {notifications.length === 0 ? (
+                    <div style={{ padding: '32px 16px', textAlign: 'center', color: '#999' }}>
+                        Tidak ada notifikasi baru
+                    </div>
+                ) : (
+                    notifications.map(item => (
+                        <div 
+                            key={item.NotificationID} 
+                            style={{ 
+                                padding: '12px 16px', 
+                                borderBottom: '1px solid #f0f0f0', 
+                                display: 'flex', 
+                                justifyContent: 'space-between',
+                                alignItems: 'flex-start',
+                                gap: 12
+                            }}
+                        >
+                            <div style={{ display: 'flex', gap: 12 }}>
+                                <InfoCircleOutlined style={{ color: '#2F54EB', marginTop: 4 }} />
                                 <div>
                                     <Text style={{ fontSize: 13 }}>{item.Message}</Text>
                                     <div style={{ fontSize: 11, color: '#999', marginTop: 4 }}>
-                                        {new Date(item.CreatedAt).toLocaleString()}
+                                        {new Date(typeof item.CreatedAt === 'string' ? item.CreatedAt.replace('Z', '') : item.CreatedAt).toLocaleString('id-ID')}
                                     </div>
                                 </div>
-                            }
-                        />
-                    </List.Item>
+                            </div>
+                            <Button type="text" size="small" icon={<CheckOutlined />} onClick={() => markAsRead(item.NotificationID)} />
+                        </div>
+                    ))
                 )}
-                style={{ maxHeight: 400, overflowY: 'auto' }}
-            />
+            </div>
         </div>
     );
 
