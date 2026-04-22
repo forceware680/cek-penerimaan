@@ -10,7 +10,7 @@ export async function POST(request: NextRequest) {
         }
 
         const body = await request.json();
-        const { RequestID } = body;
+        const { RequestID, IDPLU_Req } = body;
 
         if (!RequestID) {
             return NextResponse.json({ error: 'RequestID is required' }, { status: 400 });
@@ -32,7 +32,7 @@ export async function POST(request: NextRequest) {
             return NextResponse.json({ error: 'Request is already processed' }, { status: 400 });
         }
 
-        let targetIDPLU = reqData.IDPLU_Req;
+        let targetIDPLU = IDPLU_Req || reqData.IDPLU_Req;
 
         // 2. Handle IDPLU Generation if NON
         if (reqData.StaID === 'NON') {
