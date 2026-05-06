@@ -85,6 +85,12 @@ export default function Dashboard() {
     const [isMobile, setIsMobile] = useState(false);
     const [openNav, setOpenNav] = useState(false);
     const [currentMenu, setCurrentMenu] = useState('step1');
+    const [fiscalYear] = useState(() => {
+        if (typeof window !== 'undefined') {
+            return localStorage.getItem('fiscalYear') || new Date().getFullYear().toString();
+        }
+        return new Date().getFullYear().toString();
+    });
 
     useEffect(() => {
         const checkMobile = () => setIsMobile(window.innerWidth < 992);
@@ -92,10 +98,6 @@ export default function Dashboard() {
         window.addEventListener('resize', checkMobile);
         return () => window.removeEventListener('resize', checkMobile);
     }, []);
-
-    useEffect(() => {
-        if (!isMobile) setOpenNav(false);
-    }, [isMobile]);
 
     useEffect(() => {
         const cls = 'theme-dark';
@@ -121,9 +123,99 @@ export default function Dashboard() {
         },
     ];
 
-    const handleMenuClick = (e: any) => {
+    const handleMenuClick = (e: { key: string }) => {
         setCurrentMenu(e.key);
         if (isMobile) setOpenNav(false);
+    };
+
+    const renderSidebarFooter = (isDrawer = false) => {
+        const isLightModeDrawer = isDrawer && !isDark;
+        
+        return (
+            <div style={isDrawer ? {} : { position: 'absolute', bottom: 24, left: 16, right: 16 }}>
+                <style>{`
+                    .custom-help-btn {
+                        transition: all 0.3s ease;
+                    }
+                    .custom-help-btn.theme-dark:hover {
+                        background: rgba(255, 255, 255, 0.15) !important;
+                        color: #ffffff !important;
+                    }
+                    .custom-help-btn.theme-light:hover {
+                        background: rgba(0, 0, 0, 0.08) !important;
+                        color: #000000 !important;
+                    }
+                `}</style>
+                
+                {/* Elegant Divider */}
+                <div style={{
+                    height: '1px',
+                    width: '100%',
+                    background: isLightModeDrawer 
+                        ? 'linear-gradient(90deg, rgba(0,0,0,0) 0%, rgba(0,0,0,0.1) 50%, rgba(0,0,0,0) 100%)' 
+                        : 'linear-gradient(90deg, rgba(255,255,255,0) 0%, rgba(255,255,255,0.15) 50%, rgba(255,255,255,0) 100%)',
+                    marginBottom: '16px',
+                }} />
+
+                {(!collapsed || isDrawer) && (
+                    <div style={{ textAlign: 'center', marginBottom: 12 }}>
+                        <div style={{
+                            display: 'inline-block',
+                            padding: '4px 12px',
+                            borderRadius: '6px',
+                            background: isLightModeDrawer ? 'rgba(0, 0, 0, 0.02)' : 'rgba(255, 255, 255, 0.04)',
+                            border: `1px solid ${isLightModeDrawer ? 'rgba(0, 0, 0, 0.06)' : 'rgba(255, 255, 255, 0.1)'}`,
+                        }}>
+                            <span style={{
+                                color: isLightModeDrawer ? '#5c6b7d' : '#a6adbb',
+                                fontWeight: 500,
+                                fontSize: '12px',
+                                letterSpacing: '0.3px',
+                            }}>
+                                Tahun Anggaran {fiscalYear}
+                            </span>
+                        </div>
+                    </div>
+                )}
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+                    <Button
+                        className={`custom-help-btn ${isLightModeDrawer ? 'theme-light' : 'theme-dark'}`}
+                        type="text"
+                        icon={<InfoCircleOutlined />}
+                        onClick={() => window.open('https://simasetwiki.vercel.app/', '_blank')}
+                        style={{
+                            width: '100%',
+                            background: isLightModeDrawer ? 'rgba(0, 0, 0, 0.04)' : 'rgba(255, 255, 255, 0.05)',
+                            color: isLightModeDrawer ? '#1f1f1f' : '#ccc',
+                            display: 'flex',
+                            justifyContent: !isDrawer && collapsed ? 'center' : 'flex-start',
+                            alignItems: 'center',
+                            padding: !isDrawer && collapsed ? '0' : '4px 15px',
+                            borderRadius: 8
+                        }}
+                    >
+                        {(!collapsed || isDrawer) && <span>Help</span>}
+                    </Button>
+                <Button
+                    type="text"
+                    danger
+                    icon={<LogoutOutlined />}
+                    onClick={logout}
+                    style={{
+                        width: '100%',
+                        background: 'rgba(255, 77, 79, 0.1)',
+                        display: 'flex',
+                        justifyContent: !isDrawer && collapsed ? 'center' : 'flex-start',
+                        alignItems: 'center',
+                        padding: !isDrawer && collapsed ? '0' : '4px 15px',
+                        borderRadius: 8
+                    }}
+                >
+                    {(!collapsed || isDrawer) && <span>Logout</span>}
+                </Button>
+            </div>
+        </div>
+        );
     };
 
     const userMenu = [
@@ -140,14 +232,6 @@ export default function Dashboard() {
                     </div>
                 </div>
             ),
-        },
-        { type: 'divider' as const },
-        {
-            key: 'logout',
-            label: 'Logout',
-            icon: <LogoutOutlined />,
-            onClick: logout,
-            danger: true,
         },
     ];
 
@@ -200,14 +284,7 @@ export default function Dashboard() {
                                 items={menuItems}
                                 onClick={handleMenuClick}
                             />
-                            {!collapsed && (
-                                <div style={{ position: 'absolute', bottom: 80, left: 16, right: 16, padding: 12, background: 'rgba(255,255,255,0.1)', borderRadius: 8 }}>
-                                    <div style={{ color: '#888', fontSize: 12, marginBottom: 4 }}>
-                                        <InfoCircleOutlined /> Tips
-                                    </div>
-                                    <p style={{ color: '#ccc', fontSize: 11, margin: 0 }}>Makan dulu sebelum ngopi.</p>
-                                </div>
-                            )}
+                            {renderSidebarFooter()}
                         </Sider>
                     )}
 
@@ -257,7 +334,8 @@ export default function Dashboard() {
                                 placement="left"
                                 open={openNav}
                                 onClose={() => setOpenNav(false)}
-                                styles={{ body: { padding: 0 } }}
+                                styles={{ body: { padding: 0 }, footer: { borderTop: 'none', padding: '16px' } }}
+                                footer={renderSidebarFooter(true)}
                             >
                                 <Menu
                                     mode="inline"
