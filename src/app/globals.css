@@ -82,13 +82,12 @@ body {
   margin-bottom: 28px;
 }
 
-/* Official BPKAD seal (owner-provided), no frame or border (owner: "murni") */
+/* Login logo (owner-provided, landscape 600x357), no frame or border */
 .login-logo {
   display: block;
-  width: 96px;
-  height: 96px;
+  width: 148px;
+  height: auto;
   margin: 0 auto 20px;
-  object-fit: contain;
   border: none;
 }
 
@@ -333,8 +332,8 @@ body {
 
   /* Tap targets stay >= 44px: inputs 52px, button 56px (R-03) */
   .login-logo {
-    width: 80px;
-    height: 80px;
+    width: 116px;
+    height: auto;
   }
 
   .login-title {

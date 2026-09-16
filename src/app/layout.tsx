@@ -43,7 +43,7 @@ export default function RootLayout({
           document. (Next 16 also registers this in its own preload pipeline;
           the browser de-duplicates the request.) */}
       <head>
-        <link rel="preload" as="image" href="/logo-bpkad.webp" />
+        <link rel="preload" as="image" href="/logo-saweria.png" />
       </head>
       <body className={`${inter.variable} ${spaceGrotesk.variable} ${archivoBlack.className} antialiased`}>
         <AuthProvider>

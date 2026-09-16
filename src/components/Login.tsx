@@ -63,7 +63,7 @@ export default function Login() {
     <div className="login-container">
       <div className="login-card">
         <div className="login-header">
-          <img src="/logo-bpkad.webp" alt="Logo BPKAD" className="login-logo" fetchPriority="high" decoding="async" width={96} height={96} />
+          <img src="/logo-saweria.png" alt="Logo" className="login-logo" fetchPriority="high" decoding="async" width={600} height={357} />
           <h1 className="login-title">SI GEPENG</h1>
           <p className="login-subtitle">Sistem Informasi Cek Penerimaan</p>
         </div>
