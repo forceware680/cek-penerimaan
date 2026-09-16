@@ -423,7 +423,7 @@ export default function TempPersediaanStep1Table() {
         { title: 'Nama Barang', dataIndex: 'NamaBarang', key: 'NamaBarang', width: 200 },
         { title: 'Satuan', dataIndex: 'Satuan', key: 'Satuan', width: 80 },
         { title: 'Merk/Type', dataIndex: 'MerkType', key: 'MerkType', width: 120 },
-        { title: 'Jumlah', dataIndex: 'Jumlah', key: 'Jumlah', width: 80 },
+        { title: 'Jumlah', dataIndex: 'Jumlah', key: 'Jumlah', width: 100 },
         { title: 'Harga', dataIndex: 'Harga', key: 'Harga', width: 120, render: (text: string) => parseFloat(text).toFixed(2) },
         { title: 'TotalHarga', dataIndex: 'TotalHarga', key: 'TotalHarga', width: 120, render: (text: string) => parseFloat(text).toFixed(2) },
         { title: 'BAST', dataIndex: 'BAST', key: 'BAST', width: 150, sorter: (a: DataRecord, b: DataRecord) => new Date(a.BAST).getTime() - new Date(b.BAST).getTime(), defaultSortOrder: 'ascend' as const },
@@ -480,6 +480,7 @@ export default function TempPersediaanStep1Table() {
                         danger
                         onClick={handleEmptyTable}
                         loading={emptying}
+                        disabled={data.length === 0}
                         size="middle"
                     >
                         <DeleteOutlined />
@@ -535,7 +536,7 @@ export default function TempPersediaanStep1Table() {
                         },
                         showTotal: (total, range) => `${range[0]}-${range[1]} of ${total} items`,
                     }}
-                    scroll={{ x: 1500, y: 500 }}
+                    scroll={{ x: 1520, y: 500 }}
                     sticky={true}
                 />
             )}
