@@ -154,7 +154,7 @@ export default function Login() {
         </form>
 
         <div className="login-footer">
-          <span className="footer-text">© 2026 SI GEPENG</span>
+          <span className="footer-text">© 2024 SI GEPENG</span>
         </div>
       </div>
     </div>
