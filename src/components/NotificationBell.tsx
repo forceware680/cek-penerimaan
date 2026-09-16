@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { Badge, Popover, Button, Typography, Space, App } from 'antd';
-import { BellOutlined, CheckOutlined, InfoCircleOutlined } from '@ant-design/icons';
+import { BellOutlined, CheckOutlined, InfoCircleOutlined } from '@/components/md-icons';
 
 const { Text } = Typography;
 
@@ -54,7 +54,7 @@ export default function NotificationBell() {
 
     const notificationContent = (
         <div style={{ width: 300 }}>
-            <div style={{ padding: '8px 12px', borderBottom: '1px solid #f0f0f0', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <div style={{ padding: '8px 12px', borderBottom: '2px solid #141414', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                 <Text strong>Notifikasi Baru</Text>
                 {notifications.length > 0 && (
                     <Button type="link" size="small" onClick={() => markAsRead()} loading={loading}>
@@ -64,7 +64,7 @@ export default function NotificationBell() {
             </div>
             <div style={{ maxHeight: 400, overflowY: 'auto' }}>
                 {notifications.length === 0 ? (
-                    <div style={{ padding: '32px 16px', textAlign: 'center', color: '#999' }}>
+                    <div style={{ padding: '32px 16px', textAlign: 'center', color: '#4a4a44' }}>
                         Tidak ada notifikasi baru
                     </div>
                 ) : (
@@ -73,7 +73,7 @@ export default function NotificationBell() {
                             key={item.NotificationID} 
                             style={{ 
                                 padding: '12px 16px', 
-                                borderBottom: '1px solid #f0f0f0', 
+                                borderBottom: '1px solid #e4ddc9', 
                                 display: 'flex', 
                                 justifyContent: 'space-between',
                                 alignItems: 'flex-start',
@@ -81,10 +81,10 @@ export default function NotificationBell() {
                             }}
                         >
                             <div style={{ display: 'flex', gap: 12 }}>
-                                <InfoCircleOutlined style={{ color: '#2F54EB', marginTop: 4 }} />
+                                <InfoCircleOutlined style={{ color: '#141414', marginTop: 4 }} />
                                 <div>
                                     <Text style={{ fontSize: 13 }}>{item.Message}</Text>
-                                    <div style={{ fontSize: 11, color: '#999', marginTop: 4 }}>
+                                    <div style={{ fontSize: 11, color: '#4a4a44', marginTop: 4 }}>
                                         {new Date(typeof item.CreatedAt === 'string' ? item.CreatedAt.replace('Z', '') : item.CreatedAt).toLocaleString('id-ID')}
                                     </div>
                                 </div>

@@ -9,8 +9,6 @@ import {
     Button,
     ConfigProvider,
     App as AntApp,
-    theme as antdTheme,
-    Switch,
     Tooltip,
     Drawer,
     Avatar,
@@ -24,10 +22,8 @@ import {
     MenuUnfoldOutlined,
     InfoCircleOutlined,
     LogoutOutlined,
-    SunOutlined,
-    MoonOutlined,
     AppstoreAddOutlined,
-} from '@ant-design/icons';
+} from '@/components/md-icons';
 import TempPersediaanStep1Table from './TempPersediaanStep1Table';
 import RequestBarang from './RequestBarang';
 import NotificationBell from './NotificationBell';
@@ -66,7 +62,7 @@ const Typewriter = ({ text, speed = 150, delay = 2000 }: { text: string; speed?:
     return (
         <span>
             {displayText}
-            <span className="cursor">|</span>
+            <span className="typewriter-cursor">|</span>
         </span>
     );
 };
@@ -74,14 +70,6 @@ const Typewriter = ({ text, speed = 150, delay = 2000 }: { text: string; speed?:
 export default function Dashboard() {
     const { user, logout } = useAuth();
     const [collapsed, setCollapsed] = useState(false);
-    const [isDark, setIsDark] = useState(() => {
-        // Check localStorage on initial render (client-side only)
-        if (typeof window !== 'undefined') {
-            const saved = localStorage.getItem('theme');
-            return saved === 'dark';
-        }
-        return false;
-    });
     const [isMobile, setIsMobile] = useState(false);
     const [openNav, setOpenNav] = useState(false);
     const [currentMenu, setCurrentMenu] = useState('step1');
@@ -98,17 +86,6 @@ export default function Dashboard() {
         window.addEventListener('resize', checkMobile);
         return () => window.removeEventListener('resize', checkMobile);
     }, []);
-
-    useEffect(() => {
-        const cls = 'theme-dark';
-        if (isDark) {
-            document.body.classList.add(cls);
-            localStorage.setItem('theme', 'dark');
-        } else {
-            document.body.classList.remove(cls);
-            localStorage.setItem('theme', 'light');
-        }
-    }, [isDark]);
 
     const menuItems = [
         {
@@ -129,49 +106,37 @@ export default function Dashboard() {
     };
 
     const renderSidebarFooter = (isDrawer = false) => {
-        const isLightModeDrawer = isDrawer && !isDark;
-        
+        const onInkPanel = !isDrawer;
+
         return (
             <div style={isDrawer ? {} : { position: 'absolute', bottom: 24, left: 16, right: 16 }}>
-                <style>{`
-                    .custom-help-btn {
-                        transition: all 0.3s ease;
-                    }
-                    .custom-help-btn.theme-dark:hover {
-                        background: rgba(255, 255, 255, 0.15) !important;
-                        color: #ffffff !important;
-                    }
-                    .custom-help-btn.theme-light:hover {
-                        background: rgba(0, 0, 0, 0.08) !important;
-                        color: #000000 !important;
-                    }
-                `}</style>
-                
-                {/* Elegant Divider */}
-                <div style={{
-                    height: '1px',
-                    width: '100%',
-                    background: isLightModeDrawer 
-                        ? 'linear-gradient(90deg, rgba(0,0,0,0) 0%, rgba(0,0,0,0.1) 50%, rgba(0,0,0,0) 100%)' 
-                        : 'linear-gradient(90deg, rgba(255,255,255,0) 0%, rgba(255,255,255,0.15) 50%, rgba(255,255,255,0) 100%)',
-                    marginBottom: '16px',
-                }} />
+                <div
+                    style={{
+                        height: '2px',
+                        width: '100%',
+                        background: onInkPanel ? 'rgba(255, 255, 255, 0.15)' : '#e4ddc9',
+                        marginBottom: '16px',
+                    }}
+                />
 
                 {(!collapsed || isDrawer) && (
                     <div style={{ textAlign: 'center', marginBottom: 12 }}>
-                        <div style={{
-                            display: 'inline-block',
-                            padding: '4px 12px',
-                            borderRadius: '6px',
-                            background: isLightModeDrawer ? 'rgba(0, 0, 0, 0.02)' : 'rgba(255, 255, 255, 0.04)',
-                            border: `1px solid ${isLightModeDrawer ? 'rgba(0, 0, 0, 0.06)' : 'rgba(255, 255, 255, 0.1)'}`,
-                        }}>
-                            <span style={{
-                                color: isLightModeDrawer ? '#5c6b7d' : '#a6adbb',
-                                fontWeight: 500,
-                                fontSize: '12px',
-                                letterSpacing: '0.3px',
-                            }}>
+                        <div
+                            style={{
+                                display: 'inline-block',
+                                padding: '4px 12px',
+                                borderRadius: '8px',
+                                background: onInkPanel ? 'rgba(255, 255, 255, 0.06)' : '#fbf6e7',
+                                border: `2px solid ${onInkPanel ? 'rgba(255, 255, 255, 0.25)' : '#141414'}`,
+                            }}
+                        >
+                            <span
+                                style={{
+                                    color: '#FFD23F',
+                                    fontWeight: 700,
+                                    fontSize: '12px',
+                                }}
+                            >
                                 Tahun Anggaran {fiscalYear}
                             </span>
                         </div>
@@ -179,42 +144,37 @@ export default function Dashboard() {
                 )}
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
                     <Button
-                        className={`custom-help-btn ${isLightModeDrawer ? 'theme-light' : 'theme-dark'}`}
                         type="text"
                         icon={<InfoCircleOutlined />}
                         onClick={() => window.open('https://simasetwiki.vercel.app/', '_blank')}
                         style={{
                             width: '100%',
-                            background: isLightModeDrawer ? 'rgba(0, 0, 0, 0.04)' : 'rgba(255, 255, 255, 0.05)',
-                            color: isLightModeDrawer ? '#1f1f1f' : '#ccc',
+                            background: 'transparent',
                             display: 'flex',
                             justifyContent: !isDrawer && collapsed ? 'center' : 'flex-start',
                             alignItems: 'center',
                             padding: !isDrawer && collapsed ? '0' : '4px 15px',
-                            borderRadius: 8
                         }}
                     >
                         {(!collapsed || isDrawer) && <span>Help</span>}
                     </Button>
-                <Button
-                    type="text"
-                    danger
-                    icon={<LogoutOutlined />}
-                    onClick={logout}
-                    style={{
-                        width: '100%',
-                        background: 'rgba(255, 77, 79, 0.1)',
-                        display: 'flex',
-                        justifyContent: !isDrawer && collapsed ? 'center' : 'flex-start',
-                        alignItems: 'center',
-                        padding: !isDrawer && collapsed ? '0' : '4px 15px',
-                        borderRadius: 8
-                    }}
-                >
-                    {(!collapsed || isDrawer) && <span>Logout</span>}
-                </Button>
+                    <Button
+                        type="text"
+                        danger
+                        icon={<LogoutOutlined />}
+                        onClick={logout}
+                        style={{
+                            width: '100%',
+                            display: 'flex',
+                            justifyContent: !isDrawer && collapsed ? 'center' : 'flex-start',
+                            alignItems: 'center',
+                            padding: !isDrawer && collapsed ? '0' : '4px 15px',
+                        }}
+                    >
+                        {(!collapsed || isDrawer) && <span>Logout</span>}
+                    </Button>
+                </div>
             </div>
-        </div>
         );
     };
 
@@ -223,7 +183,7 @@ export default function Dashboard() {
             key: 'user-info',
             label: (
                 <div style={{ textAlign: 'center', padding: '8px 0' }}>
-                    <Avatar size={48} style={{ backgroundColor: '#2F54EB', marginBottom: 8 }} icon={<UserOutlined />}>
+                    <Avatar size={48} style={{ backgroundColor: '#FFD23F', color: '#141414', marginBottom: 8 }} icon={<UserOutlined />}>
                         {user?.username?.[0]?.toUpperCase()}
                     </Avatar>
                     <div>
@@ -238,17 +198,33 @@ export default function Dashboard() {
     return (
         <ConfigProvider
             theme={{
-                algorithm: isDark ? antdTheme.darkAlgorithm : antdTheme.defaultAlgorithm,
                 token: {
-                    colorPrimary: '#2F54EB',
-                    borderRadius: 8,
+                    colorPrimary: '#141414',
+                    colorSuccess: '#15803d',
+                    colorWarning: '#b45309',
+                    colorError: '#D61F1F',
+                    colorInfo: '#141414',
+                    colorBgLayout: '#f6f1e4',
+                    colorBgContainer: '#ffffff',
+                    colorText: '#141414',
+                    colorTextSecondary: '#4a4a44',
+                    colorBorder: '#141414',
+                    colorBorderSecondary: '#e4ddc9',
+                    borderRadius: 10,
                     fontSize: 14,
-                    colorBgContainer: isDark ? '#141414' : '#ffffff',
+                    fontFamily: '"Space Grotesk", Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif',
+                },
+                components: {
+                    Layout: {
+                        headerBg: '#ffffff',
+                        siderBg: '#141414',
+                        bodyBg: '#f6f1e4',
+                    },
                 },
             }}
         >
             <AntApp>
-                <Layout style={{ minHeight: '100vh', backgroundColor: isDark ? '#0f1214' : '#f5f7fa' }}>
+                <Layout style={{ minHeight: '100vh' }}>
                     {!isMobile && (
                         <Sider
                             collapsible
@@ -265,7 +241,7 @@ export default function Dashboard() {
                                         <div style={{ color: '#fff', fontSize: 18, fontWeight: 'bold' }}>
                                             <Typewriter text="SI GEPENG" />
                                         </div>
-                                        <div style={{ color: '#888', fontSize: 12 }}>Warehouse Hub</div>
+                                        <div style={{ color: 'rgba(255, 255, 255, 0.55)', fontSize: 12 }}>Warehouse Hub</div>
                                     </div>
                                 )}
                                 <Tooltip title={collapsed ? 'Buka menu' : 'Sembunyikan menu'}>
@@ -289,7 +265,10 @@ export default function Dashboard() {
                     )}
 
                     <Layout>
-                        <Header style={{ padding: isMobile ? '0 12px' : '0 24px', background: isDark ? '#141414' : '#fff' }}>
+                        <Header
+                            className="dashboard-header"
+                            style={{ padding: isMobile ? '0 12px' : '0 24px' }}
+                        >
                             <Row style={{ width: '100%' }} align="middle">
                                 <Col flex="none" style={{ marginRight: 12 }}>
                                     {isMobile && (
@@ -297,17 +276,17 @@ export default function Dashboard() {
                                             type="text"
                                             onClick={() => setOpenNav(!openNav)}
                                             icon={openNav ? <MenuFoldOutlined /> : <MenuUnfoldOutlined />}
-                                            style={{ color: isDark ? '#fff' : '#1f1f1f', fontSize: 18 }}
+                                            style={{ color: '#141414', fontSize: 18 }}
                                         />
                                     )}
                                 </Col>
                                 <Col flex="none" style={{ marginRight: 12 }}>
                                     <Dropdown menu={{ items: userMenu }} trigger={['click']}>
-                                        <div style={{ cursor: 'pointer', display: 'flex', alignItems: 'center' }}>
-                                            <Avatar size="small" style={{ backgroundColor: '#2F54EB', marginRight: 8 }} icon={<UserOutlined />}>
+                                        <div className="header-user-trigger" style={{ cursor: 'pointer', display: 'flex', alignItems: 'center' }}>
+                                            <Avatar size="small" style={{ backgroundColor: '#FFD23F', color: '#141414', marginRight: 8 }} icon={<UserOutlined />}>
                                                 {user?.username?.[0]?.toUpperCase()}
                                             </Avatar>
-                                            {!isMobile && <span style={{ color: isDark ? '#fff' : '#1f1f1f' }}>{user?.username}</span>}
+                                            {!isMobile && <span style={{ color: '#141414' }}>{user?.username}</span>}
                                         </div>
                                     </Dropdown>
                                 </Col>
@@ -315,22 +294,16 @@ export default function Dashboard() {
                                 <Col flex="none" style={{ marginRight: 16, display: 'flex', alignItems: 'center' }}>
                                     <NotificationBell />
                                 </Col>
-                                <Col flex="none">
-                                    <Tooltip title={isDark ? 'Switch to Light' : 'Switch to Dark'}>
-                                        <Switch
-                                            checked={isDark}
-                                            onChange={setIsDark}
-                                            checkedChildren={<MoonOutlined />}
-                                            unCheckedChildren={<SunOutlined />}
-                                        />
-                                    </Tooltip>
-                                </Col>
                             </Row>
                         </Header>
 
                         {isMobile && (
                             <Drawer
-                                title="Navigasi"
+                                title={
+                                    <div style={{ fontWeight: 800, letterSpacing: '0.03em' }}>
+                                        SI GEPENG <span style={{ opacity: 0.55, fontWeight: 500 }}>· Navigasi</span>
+                                    </div>
+                                }
                                 placement="left"
                                 open={openNav}
                                 onClose={() => setOpenNav(false)}
@@ -339,6 +312,7 @@ export default function Dashboard() {
                             >
                                 <Menu
                                     mode="inline"
+                                    theme="light"
                                     selectedKeys={[currentMenu]}
                                     items={menuItems}
                                     onClick={handleMenuClick}
@@ -348,11 +322,10 @@ export default function Dashboard() {
 
                         <Content style={{ padding: isMobile ? 12 : 20 }}>
                             <div
+                                className="nb-panel"
                                 style={{
-                                    backgroundColor: isDark ? '#141414' : '#fff',
-                                    borderRadius: 10,
                                     padding: isMobile ? 12 : 20,
-                                    boxShadow: isDark ? '0 2px 8px rgba(0,0,0,0.35)' : '0 2px 8px rgba(0,0,0,0.06)',
+                                    boxShadow: '6px 6px 0 #141414',
                                     minHeight: 'calc(100vh - 150px)',
                                 }}
                             >
@@ -361,7 +334,7 @@ export default function Dashboard() {
                             </div>
                         </Content>
 
-                        <Footer style={{ textAlign: 'center', backgroundColor: 'transparent', padding: 15, color: isDark ? '#9ca3af' : undefined }}>
+                        <Footer style={{ textAlign: 'center', backgroundColor: 'transparent', padding: 15, color: '#4a4a44' }}>
                             <span style={{ fontSize: 14 }}>
                                 <b>SI GEPENG WEB</b> ©2024 Developed By <b>Quantum Aset</b> | Databases By <b>SeML</b> | <a href="https://github.com/forceware680/cek-penerimaan/commits/master/">Changelog</a>
                             </span>

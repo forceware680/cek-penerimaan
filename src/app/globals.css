@@ -1,9 +1,27 @@
 @import "tailwindcss";
 
+/* Design system: NEOBRUTALISM (owner-requested for login and dashboard).
+   Ink #141414, paper #f6f1e4, single accent yellow #FFD23F, danger red #D61F1F.
+   Solid 2-3px borders, hard zero-blur offset shadows, no gradients.
+   Dark mode removed: the .theme-dark class no longer exists anywhere. */
+
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
-  --primary-color: #2F54EB;
+  --background: #f6f1e4;
+  --foreground: #141414;
+  --primary-color: #FFD23F;
+  --ink: #141414;
+  --paper: #f6f1e4;
+  --paper-dark: #efe8d8;
+  --paper-tint: #fbf6e7;
+  --accent: #FFD23F;
+  --accent-tint: #FFF3C4;
+  --danger: #D61F1F;
+  --danger-deep: #b81a1a;
+  --line: #e4ddc9;
+  --surface: #ffffff;
+  --text-soft: #4a4a44;
+  --placeholder: #6d6d66;
+  --line-soft: #cfc9b8;
 }
 
 @theme inline {
@@ -15,643 +33,317 @@
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;
+  font-family: var(--font-space-grotesk), 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;
   margin: 0;
   padding: 0;
 }
-
-/* Login Page Styles */
+/* Login Page Styles
+   Direction: NEOBRUTALISM (owner-requested; resolves the R-37 direction gap).
+   Dials: ENERGY 4 / RHYTHM 2 / MOTION 2.
+   Language: hard 3px ink borders, hard offset shadows (zero blur),
+   one loud accent (#FFD23F), chunky display type. */
 .login-container {
   display: flex;
   justify-content: center;
   align-items: center;
   min-height: 100vh;
   position: relative;
-  overflow: hidden;
-}
-
-.login-background {
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
-  z-index: 0;
-}
-
-.login-particles {
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background-image: 
-    radial-gradient(2px 2px at 20% 30%, rgba(255, 255, 255, 0.3), transparent),
-    radial-gradient(2px 2px at 60% 70%, rgba(255, 255, 255, 0.3), transparent),
-    radial-gradient(1px 1px at 50% 50%, rgba(255, 255, 255, 0.3), transparent),
-    radial-gradient(1px 1px at 80% 20%, rgba(255, 255, 255, 0.3), transparent),
-    radial-gradient(2px 2px at 90% 60%, rgba(255, 255, 255, 0.3), transparent);
-  background-size: 200% 200%;
-  animation: particles 20s ease-in-out infinite;
-  opacity: 0.6;
-}
-
-.login-gradient-orb {
-  position: absolute;
-  border-radius: 50%;
-  filter: blur(60px);
-  opacity: 0.4;
-  animation: float 8s ease-in-out infinite;
-}
-
-.orb-1 {
-  top: 10%;
-  left: 20%;
-  width: 300px;
-  height: 300px;
-  background: radial-gradient(circle, rgba(102, 126, 234, 0.8), transparent);
-  animation-delay: 0s;
-}
-
-.orb-2 {
-  top: 60%;
-  right: 20%;
-  width: 250px;
-  height: 250px;
-  background: radial-gradient(circle, rgba(240, 147, 251, 0.8), transparent);
-  animation-delay: 2s;
-}
-
-.orb-3 {
-  bottom: 20%;
-  left: 50%;
-  width: 200px;
-  height: 200px;
-  background: radial-gradient(circle, rgba(118, 75, 162, 0.8), transparent);
-  animation-delay: 4s;
-}
-
-.login-overlay {
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: rgba(0, 0, 0, 0.2);
-  z-index: 1;
-}
-
-.login-float-container {
-  z-index: 2;
-  animation: fadeInUp 0.8s ease-out;
+  background: var(--paper);
+  font-family: var(--font-space-grotesk), system-ui, sans-serif;
 }
 
 .login-card {
   width: 100%;
-  max-width: 460px;
-  padding: 40px;
-  border-radius: 24px;
-  background: rgba(255, 255, 255, 0.95);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
-  border: 1px solid rgba(255, 255, 255, 0.3);
-  box-shadow: 
-    0 20px 40px rgba(0, 0, 0, 0.1),
-    0 0 0 1px rgba(255, 255, 255, 0.05);
+  max-width: 440px;
+  padding: 36px 32px;
+  border-radius: 16px;
+  background: var(--surface);
+  border: 3px solid var(--ink);
+  /* One depth language: hard offset shadow, no blur (R-12 purpose) */
+  box-shadow: 8px 8px 0 var(--ink);
   position: relative;
   overflow: hidden;
 }
 
+/* Yellow letterhead strip: the repeated identity motif of this screen (R-20) */
 .login-card::before {
   content: '';
   position: absolute;
   top: 0;
   left: 0;
   right: 0;
-  height: 2px;
-  background: linear-gradient(90deg, #667eea, #764ba2, #f093fb);
-  animation: shimmer 3s ease-in-out infinite;
+  height: 10px;
+  background: var(--accent);
+  border-bottom: 3px solid var(--ink);
 }
 
 .login-header {
   text-align: center;
-  margin-bottom: 32px;
+  margin-bottom: 28px;
 }
 
+/* Official BPKAD seal (owner-provided), no frame or border (owner: "murni") */
 .login-logo {
-  margin-bottom: 20px;
-  display: flex;
-  justify-content: center;
+  display: block;
+  width: 96px;
+  height: 96px;
+  margin: 0 auto 20px;
+  object-fit: contain;
+  border: none;
 }
 
-.logo-circle {
-  width: 64px;
-  height: 64px;
-  border-radius: 50%;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  box-shadow: 0 8px 24px rgba(102, 126, 234, 0.3);
-  animation: pulse 2s ease-in-out infinite;
-}
-
-.logo-icon {
-  font-size: 28px;
-  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.2));
-}
-
+/* R-06: Archivo Black carries the loud display voice; Space Grotesk (set on
+   .login-container) keeps form text readable. */
 .login-title {
-  margin: 0 0 8px 0;
-  color: #1a1a2e;
-  font-weight: 700;
-  font-size: 28px;
-  line-height: 1.2;
+  margin: 0 0 6px;
+  color: var(--ink);
+  font-family: 'Archivo Black', 'Arial Black', sans-serif;
+  font-size: 30px;
+  line-height: 1.1;
+  letter-spacing: 0.5px;
 }
 
 .login-subtitle {
-  color: #666;
+  color: var(--text-soft);
   display: block;
   font-size: 14px;
   font-weight: 500;
-  margin-bottom: 16px;
 }
 
-.login-divider {
-  height: 1px;
-  background: linear-gradient(90deg, transparent, #e0e0e0, transparent);
-  margin: 24px 0;
+/* Server error banner: red hard shadow encodes the error state in the
+   shadow language (state color, not decoration) */
+.login-error {
+  margin-bottom: 20px;
+  padding: 12px 16px;
+  border: 3px solid var(--ink);
+  border-radius: 12px;
+  background: var(--surface);
+  box-shadow: 4px 4px 0 var(--danger);
+  color: var(--ink);
+  font-size: 14px;
+  font-weight: 600;
 }
 
-.typing-text {
-  background: linear-gradient(135deg, #667eea, #764ba2);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-}
-
-.cursor {
-  animation: blink 1s infinite;
-  background: linear-gradient(135deg, #667eea, #764ba2);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
+.login-field {
+  margin-bottom: 18px;
 }
 
 .form-label {
-  font-weight: 600;
-  color: #333;
-  font-size: 14px;
+  display: block;
+  margin-bottom: 8px;
+  font-weight: 700;
+  font-size: 13px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--ink);
+}
+
+.login-field-control {
+  position: relative;
 }
 
 .login-input,
 .login-select {
-  border-radius: 12px !important;
-  border: 2px solid #f0f0f0 !important;
-  transition: all 0.3s ease !important;
-  padding: 12px 16px !important;
-  font-size: 15px !important;
+  width: 100%;
+  height: 52px;
+  padding: 0 16px;
+  border-radius: 12px;
+  border: 3px solid var(--ink);
+  background: var(--surface);
+  box-shadow: 4px 4px 0 var(--ink);
+  color: var(--ink);
+  font-family: inherit;
+  font-size: 16px;
+  font-weight: 500;
 }
 
-.login-input:hover,
-.login-select:hover {
-  border-color: #667eea !important;
-  box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.1) !important;
+.login-input::placeholder {
+  color: var(--placeholder);
 }
 
+/* Native <select> misaligns its text baseline vs <input> and draws a UA
+   arrow; normalize it: custom ink chevron, explicit line-height so the
+   text centers exactly like the other fields. */
+.login-select {
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  padding-right: 48px;
+  line-height: 46px; /* 52px box - 6px border */
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23141414' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 14px center;
+  background-size: 18px 18px;
+  cursor: pointer;
+}
+
+.login-select option {
+  background: var(--surface);
+  color: var(--ink);
+  font-family: inherit;
+}
+
+/* Focus: distinct ink ring outside the existing border (R-32) */
 .login-input:focus,
 .login-select:focus,
-.login-input.ant-input-affix-wrapper-focused,
-.login-select.ant-select-focused .ant-select-selector {
-  border-color: #667eea !important;
-  box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.2) !important;
+.login-pass-toggle:focus-visible,
+.login-button:focus-visible {
+  outline: 3px solid var(--ink);
+  outline-offset: 3px;
 }
 
-.input-icon {
-  color: #667eea;
-  font-size: 16px;
+.login-field-control .login-input {
+  padding-right: 64px;
 }
 
-.login-button {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
-  border: none !important;
-  height: 52px !important;
-  font-size: 16px !important;
-  font-weight: 600 !important;
-  border-radius: 12px !important;
-  box-shadow: 0 8px 24px rgba(102, 126, 234, 0.3) !important;
-  transition: all 0.3s ease !important;
-  display: flex !important;
-  align-items: center !important;
-  justify-content: center !important;
-  gap: 8px !important;
+/* Functional control: toggles password visibility (aria-pressed) */
+.login-pass-toggle {
+  /* Owner: no framed chip here. Plain ink icon button; state reads via
+     opacity, focus via the standard ink ring. */
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  height: 44px;
+  padding: 0 8px;
+  border: none;
+  border-radius: 8px;
+  background: transparent;
+  color: var(--ink);
+  cursor: pointer;
+  transition: opacity 80ms ease;
 }
 
-.login-button:hover {
-  background: linear-gradient(135deg, #5a72d9 0%, #6a4291 100%) !important;
-  transform: translateY(-2px) !important;
-  box-shadow: 0 12px 32px rgba(102, 126, 234, 0.4) !important;
+.login-pass-toggle:hover {
+  opacity: 0.7;
 }
 
-.login-button:active {
-  transform: translateY(0) !important;
-  box-shadow: 0 4px 16px rgba(102, 126, 234, 0.3) !important;
+.login-pass-toggle:active {
+  opacity: 0.5;
 }
 
-.login-footer {
-  text-align: center;
-  margin-top: 32px;
-  padding-top: 24px;
-  border-top: 1px solid #f0f0f0;
-}
-
-.footer-text {
-  color: #999;
-  font-size: 12px;
-  opacity: 0.8;
-}
-
-.login-alert {
-  border-radius: 12px !important;
-  border: none !important;
-  font-size: 14px !important;
-  animation: shake 0.5s ease-in-out;
-}
-
-/* Animations */
-@keyframes particles {
-  0%, 100% { transform: translateY(0) rotate(0deg); }
-  25% { transform: translateY(-20px) rotate(90deg); }
-  50% { transform: translateY(0) rotate(180deg); }
-  75% { transform: translateY(-10px) rotate(270deg); }
-}
-
-@keyframes float {
-  0%, 100% { transform: translateY(0px) rotate(0deg); }
-  33% { transform: translateY(-20px) rotate(120deg); }
-  66% { transform: translateY(-10px) rotate(240deg); }
-}
-
-@keyframes fadeInUp {
-  from {
-    opacity: 0;
-    transform: translateY(30px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-@keyframes pulse {
-  0%, 100% { transform: scale(1); }
-  50% { transform: scale(1.05); }
-}
-
-@keyframes shimmer {
-  0% { transform: translateX(-100%); }
-  100% { transform: translateX(100%); }
-}
-
-@keyframes blink {
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0; }
-}
-
-@keyframes shake {
-  0%, 100% { transform: translateX(0); }
-  10%, 30%, 50%, 70%, 90% { transform: translateX(-5px); }
-  20%, 40%, 60%, 80% { transform: translateX(5px); }
-}
-
-/* Dark theme */
-.theme-dark {
-  --background: #0a0a0a;
-  --foreground: #ededed;
-}
-
-.theme-dark body {
-  background: #0f1214;
-}
-
-/* Ant Design Overrides */
-.ant-table-wrapper .ant-table-thead>tr>th {
-  background: #fafafa;
+/* #d61f1f on #ffffff = 5.2:1, above WCAG AA 4.5:1 (R-25) */
+.login-field-error {
+  display: block;
+  margin-top: 8px;
+  font-size: 13px;
   font-weight: 600;
+  color: var(--danger);
 }
 
-.theme-dark .ant-table-wrapper .ant-table-thead>tr>th {
-  background: #1f1f1f;
+/* MOTION 2: tactile press feedback only (lift on hover, press-in on active),
+   80ms, no loops, no entrance animation (R-19 purpose) */
+.login-button {
+  width: 100%;
+  height: 56px;
+  margin-top: 6px;
+  border: 3px solid var(--ink);
+  border-radius: 12px;
+  background: var(--accent);
+  color: var(--ink);
+  font-family: inherit;
+  font-size: 16px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  cursor: pointer;
+  box-shadow: 5px 5px 0 var(--ink);
+  transition: transform 80ms ease, box-shadow 80ms ease;
 }
 
-/* Scrollbar */
-::-webkit-scrollbar {
-  width: 8px;
-  height: 8px;
+.login-button:hover:not(:disabled) {
+  transform: translate(-2px, -2px);
+  box-shadow: 7px 7px 0 var(--ink);
 }
 
-::-webkit-scrollbar-track {
-  background: #f1f1f1;
+.login-button:active:not(:disabled) {
+  transform: translate(5px, 5px);
+  box-shadow: 0 0 0 var(--ink);
 }
 
-::-webkit-scrollbar-thumb {
-  background: #888;
-  border-radius: 4px;
-}
-
-::-webkit-scrollbar-thumb:hover {
-  background: #555;
-}
-
-.theme-dark ::-webkit-scrollbar-track {
-  background: #2d2d2d;
-}
-
-.theme-dark ::-webkit-scrollbar-thumb {
-  background: #555;
-}
-
-/* Sidebar Styles */
-.ant-layout-sider {
-  background: linear-gradient(180deg, #1a1a2e 0%, #16213e 100%) !important;
-}
-
-.ant-menu-dark {
-  background: transparent !important;
-}
-
-.ant-menu-dark .ant-menu-item-selected {
-  background: rgba(47, 84, 235, 0.3) !important;
-}
-
-/* Dark mode for Ant Design Modal */
-.theme-dark .ant-modal-content {
-  background: #1f1f1f !important;
-  color: #ededed !important;
-}
-
-.theme-dark .ant-modal-header {
-  background: #1f1f1f !important;
-  border-bottom-color: #333 !important;
-}
-
-.theme-dark .ant-modal-title {
-  color: #ededed !important;
-}
-
-.theme-dark .ant-modal-close-x {
-  color: #ededed !important;
-}
-
-/* Dark mode for Ant Design Input */
-.theme-dark .ant-input,
-.theme-dark .ant-input-affix-wrapper,
-.theme-dark .ant-picker {
-  background: #2d2d2d !important;
-  border-color: #444 !important;
-  color: #ededed !important;
-}
-
-.theme-dark .ant-input::placeholder,
-.theme-dark .ant-picker-input>input::placeholder {
-  color: #888 !important;
-}
-
-/* Readonly input styling */
-.readonly-input {
-  background: #f5f5f5 !important;
+.login-button:disabled {
+  opacity: 0.65;
   cursor: not-allowed;
 }
 
-.theme-dark .readonly-input {
-  background: #252525 !important;
-  color: #999 !important;
+/* Dashed rule separates the footer credit from the form; style-consistent, non-text */
+.login-footer {
+  margin-top: 28px;
+  padding-top: 20px;
+  text-align: center;
+  border-top: 2px dashed var(--line-soft);
 }
 
-.theme-dark .ant-input[readonly],
-.theme-dark .ant-input-disabled {
-  background: #252525 !important;
-  color: #999 !important;
+/* #4a4a44 on #ffffff = 8.9:1 (R-25) */
+.footer-text {
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--text-soft);
 }
 
-.theme-dark .ant-picker-panel-container {
-  background: #1f1f1f !important;
-}
+/* prefers-reduced-motion: kill the transforms, keep the shadow shift as the
+   state signal (hover = deeper shadow, pressed = flat). */
+@media (prefers-reduced-motion: reduce) {
+  .login-pass-toggle,
+  .login-button,
+  .ant-btn {
+    transition: none;
+  }
 
-.theme-dark .ant-picker-header,
-.theme-dark .ant-picker-content th,
-.theme-dark .ant-picker-cell-inner {
-  color: #ededed !important;
-}
+  .login-pass-toggle:hover {
+    transform: translateY(-50%);
+  }
 
-.theme-dark .ant-picker-cell:hover .ant-picker-cell-inner {
-  background: #333 !important;
-}
+  .login-pass-toggle:active {
+    transform: translateY(-50%);
+  }
 
-/* Dark mode for suggestion list in modal */
-.theme-dark .ant-modal ul {
-  background: #2d2d2d !important;
-  border-color: #444 !important;
+  .login-button:hover:not(:disabled),
+  .login-button:active:not(:disabled),
+  .ant-btn:hover,
+  .ant-btn:active {
+    transform: none;
+  }
 }
-
-.theme-dark .ant-modal ul li {
-  border-bottom-color: #333 !important;
-  color: #ededed !important;
-}
-
-.theme-dark .ant-modal ul li:hover {
-  background: #3d3d3d !important;
-}
-
 /* Responsive */
 @media (max-width: 768px) {
   .login-container {
-    padding: 16px;
+    padding: 48px 16px max(24px, env(safe-area-inset-bottom));
     align-items: flex-start;
-    padding-top: 40px;
-  }
-
-  .login-float-container {
-    width: 100%;
-    max-width: 100%;
   }
 
   .login-card {
-    width: 100%;
-    max-width: none;
-    padding: 24px 20px;
-    border-radius: 20px;
-    margin: 0;
-  }
-
-  .login-header {
-    margin-bottom: 24px;
-  }
-
-  .login-logo {
-    margin-bottom: 16px;
-  }
-
-  .logo-circle {
-    width: 56px;
-    height: 56px;
-  }
-
-  .logo-icon {
-    font-size: 24px;
+    padding: 28px 20px;
+    box-shadow: 6px 6px 0 var(--ink);
   }
 
   .login-title {
-    font-size: 24px !important;
-    line-height: 1.3;
-    margin-bottom: 6px;
-  }
-
-  .login-subtitle {
-    font-size: 13px;
-    margin-bottom: 12px;
-  }
-
-  .login-divider {
-    margin: 16px 0;
-  }
-
-  .login-form .ant-form-item {
-    margin-bottom: 16px;
-  }
-
-  .login-form .ant-form-item-label {
-    margin-bottom: 6px;
-  }
-
-  .form-label {
-    font-size: 13px;
-  }
-
-  .login-input,
-  .login-select .ant-select-selector {
-    padding: 10px 14px !important;
-    font-size: 16px !important;
-    min-height: 48px;
-    display: flex;
-    align-items: center;
-  }
-
-  .login-input.ant-input-affix-wrapper {
-    padding: 10px 14px !important;
-    min-height: 48px;
-  }
-
-  .login-select {
-    font-size: 16px;
-  }
-
-  .login-select .ant-select-selector {
-    padding: 10px 14px !important;
-    min-height: 48px;
-  }
-
-  .input-icon {
-    font-size: 16px;
-  }
-
-  .login-button {
-    height: 52px !important;
-    font-size: 16px !important;
-    margin-top: 8px;
-  }
-
-  .login-footer {
-    margin-top: 24px;
-    padding-top: 20px;
-  }
-
-  .footer-text {
-    font-size: 11px;
-  }
-
-  /* Adjust background elements for mobile */
-  .login-gradient-orb {
-    opacity: 0.2;
-  }
-
-  .orb-1 {
-    width: 200px;
-    height: 200px;
-  }
-
-  .orb-2 {
-    width: 180px;
-    height: 180px;
-  }
-
-  .orb-3 {
-    width: 150px;
-    height: 150px;
-  }
-
-  .login-particles {
-    opacity: 0.3;
+    font-size: 26px;
   }
 }
 
 @media (max-width: 480px) {
   .login-container {
-    padding: 12px;
-    padding-top: 20px;
+    padding: 24px 12px max(20px, env(safe-area-inset-bottom));
   }
 
   .login-card {
-    padding: 20px 16px;
-    border-radius: 16px;
+    padding: 24px 16px;
+  }
+
+  /* Tap targets stay >= 44px: inputs 52px, button 56px (R-03) */
+  .login-logo {
+    width: 80px;
+    height: 80px;
   }
 
   .login-title {
-    font-size: 20px !important;
-  }
-
-  .login-subtitle {
-    font-size: 12px;
-  }
-
-  .logo-circle {
-    width: 48px;
-    height: 48px;
-  }
-
-  .logo-icon {
-    font-size: 20px;
-  }
-
-  .form-label {
-    font-size: 12px;
-  }
-
-  .login-input,
-  .login-select .ant-select-selector {
-    padding: 8px 12px !important;
-    font-size: 16px !important;
-    min-height: 44px;
-  }
-
-  .login-input.ant-input-affix-wrapper {
-    padding: 8px 12px !important;
-    min-height: 44px;
-  }
-
-  .login-select .ant-select-selector {
-    padding: 8px 12px !important;
-    min-height: 44px;
-  }
-
-  .login-button {
-    height: 48px !important;
-    font-size: 15px !important;
+    font-size: 24px;
   }
 }
 
-/* Mobile RangePicker Presets - Make presets visible on mobile */
+
+/* Mobile RangePicker Presets - make presets usable on small screens */
 @media (max-width: 768px) {
   .ant-picker-dropdown .ant-picker-panel-layout {
     flex-direction: column !important;
@@ -661,7 +353,7 @@ body {
     max-width: 100% !important;
     width: 100% !important;
     border-right: none !important;
-    border-bottom: 1px solid #303030 !important;
+    border-bottom: 2px solid #141414 !important;
     padding: 8px !important;
     display: flex !important;
     flex-wrap: wrap !important;
@@ -679,337 +371,1076 @@ body {
 
   .ant-picker-dropdown .ant-picker-presets li {
     padding: 6px 12px !important;
-    background: rgba(47, 84, 235, 0.2) !important;
-    border-radius: 4px !important;
+    background: #fbf6e7 !important;
+    border: 2px solid #141414 !important;
+    border-radius: 6px !important;
     margin: 0 !important;
     cursor: pointer !important;
     white-space: nowrap !important;
+    color: #141414 !important;
+    font-weight: 600 !important;
   }
 
   .ant-picker-dropdown .ant-picker-presets li:hover {
-    background: rgba(47, 84, 235, 0.4) !important;
-  }
-
-  /* Light theme preset styling */
-  .ant-picker-dropdown .ant-picker-presets li {
-    color: #2F54EB !important;
+    background: #FFD23F !important;
   }
 }
 
-/* Dark theme mobile preset styling */
-.theme-dark .ant-picker-dropdown .ant-picker-presets li {
-  color: #fff !important;
+/* =========================================================================
+   DASHBOARD NEOBRUTAL SYSTEM
+   AntD components restyled to the same system as the login:
+   2px ink borders, hard zero-blur shadows, paper/white surfaces,
+   yellow accent. All !important because AntD injects its own
+   styles after this file at runtime.
+   ========================================================================= */
+
+/* --- Layout shell ------------------------------------------------------- */
+.ant-layout {
+  background: var(--paper) !important;
 }
 
-/* Dark theme for login */
-.theme-dark .login-card {
-  background: rgba(26, 26, 46, 0.95) !important;
-  border: 1px solid rgba(255, 255, 255, 0.1) !important;
+.ant-layout-content {
+  background: var(--paper) !important;
 }
 
-.theme-dark .login-title {
-  color: #ededed !important;
+/* Sidebar: solid ink panel (no gradient) */
+.ant-layout-sider,
+.ant-layout-sider .ant-layout-sider-children {
+  background: var(--ink) !important;
 }
 
-.theme-dark .login-subtitle {
-  color: #aaa !important;
+.dashboard-header {
+  background: #fff !important;
+  border-bottom: 2px solid var(--ink) !important;
 }
 
-.theme-dark .form-label {
-  color: #ededed !important;
-}
-
-.theme-dark .login-input,
-.theme-dark .login-select {
-  background: rgba(45, 45, 65, 0.8) !important;
-  border-color: #444 !important;
-  color: #ededed !important;
-}
-
-.theme-dark .login-input:hover,
-.theme-dark .login-select:hover {
-  border-color: #667eea !important;
-}
-
-.theme-dark .login-input::placeholder,
-.theme-dark .login-select .ant-select-selection-placeholder {
-  color: #888 !important;
-}
-
-.theme-dark .login-divider {
-  background: linear-gradient(90deg, transparent, #333, transparent) !important;
-}
-
-.theme-dark .login-footer {
-  border-top-color: #333 !important;
-}
-
-.theme-dark .footer-text {
-  color: #666 !important;
-}
-
-.theme-dark .input-icon {
-  color: #667eea !important;
-}
-
-/* Ant Design overrides for login form */
-.login-form .ant-form-item-label > label {
-  height: auto !important;
-  font-weight: 600 !important;
-  font-size: 14px !important;
-}
-
-.login-form .ant-form-item {
-  margin-bottom: 20px !important;
-}
-
-.login-form .ant-form-item:last-child {
-  margin-bottom: 0 !important;
-}
-
-.login-select .ant-select-selector {
+/* Sidebar user box */
+.sidebar-user {
+  background: rgba(255, 255, 255, 0.06) !important;
+  border: 2px solid rgba(255, 255, 255, 0.14) !important;
   border-radius: 12px !important;
-  border: 2px solid #f0f0f0 !important;
-  transition: all 0.3s ease !important;
-  padding: 8px 16px !important;
-  height: auto !important;
-  font-size: 15px !important;
-  background: white !important;
 }
 
-.login-select:hover .ant-select-selector {
-  border-color: #667eea !important;
-  box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.1) !important;
+/* --- Sidebar menu (dark menu on ink panel) ----------------------------- */
+.ant-layout-sider .ant-menu,
+.ant-layout-sider .ant-menu-root {
+  background: transparent !important;
 }
 
-.login-select.ant-select-focused .ant-select-selector {
-  border-color: #667eea !important;
-  box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.2) !important;
-}
-
-/* Select dropdown styling */
-.login-select .ant-select-dropdown {
-  border-radius: 12px !important;
-  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15) !important;
-  border: 1px solid #f0f0f0 !important;
-  padding: 8px !important;
-  margin-top: 8px !important;
-}
-
-.login-select .ant-select-item {
-  border-radius: 8px !important;
-  margin: 2px 0 !important;
-  padding: 12px 16px !important;
-  transition: all 0.2s ease !important;
+.ant-layout-sider .ant-menu-item {
+  color: rgba(255, 255, 255, 0.72) !important;
+  background: transparent !important;
+  margin: 4px 8px !important;
+  width: calc(100% - 16px) !important;
+  border-radius: 10px !important;
   font-weight: 500 !important;
+  transition: background 0.1s ease, color 0.1s ease !important;
 }
 
-.login-select .ant-select-item-option {
-  background: white !important;
+.ant-layout-sider .ant-menu-item:hover {
+  color: #fff !important;
+  background: rgba(255, 255, 255, 0.08) !important;
 }
 
-.login-select .ant-select-item-option:hover {
-  background: linear-gradient(135deg, rgba(102, 126, 234, 0.1), rgba(118, 75, 162, 0.1)) !important;
-  transform: translateX(4px) !important;
+/* Selected item: yellow chip with ink text */
+.ant-layout-sider .ant-menu-item-selected,
+.ant-layout-sider .ant-menu-item-selected:hover {
+  background: var(--accent) !important;
+  color: var(--ink) !important;
+  font-weight: 700 !important;
 }
 
-.login-select .ant-select-item-option-selected {
-  background: linear-gradient(135deg, #667eea, #764ba2) !important;
-  color: white !important;
+.ant-layout-sider .ant-menu-item .anticon {
+  color: inherit !important;
+}
+
+/* Logout (text-danger) button sits on the ink panel: readable light red */
+.ant-layout-sider .ant-btn-text.ant-btn-dangerous {
+  color: #ff9b9b !important;
+}
+.ant-layout-sider .ant-btn-text.ant-btn-dangerous:hover {
+  color: #fff !important;
+  background: rgba(255, 155, 155, 0.12) !important;
+}
+
+/* --- Header user info ---------------------------------------------------- */
+/* Cursor sits on the ink sidebar: yellow reads against it */
+.typewriter-cursor {
+  color: #FFD23F !important;
+  font-weight: 700;
+}
+
+/* --- Buttons -------------------------------------------------------------- */
+.ant-btn {
+  background: #fff !important;
+  border: 2px solid var(--ink) !important;
+  color: var(--ink) !important;
+  border-radius: 10px !important;
+  box-shadow: 3px 3px 0 var(--ink) !important;
+  font-weight: 600 !important;
+  font-family: inherit !important;
+  transition: transform 0.08s ease, box-shadow 0.08s ease, background 0.08s ease !important;
+}
+
+.ant-btn-lg {
+  border-radius: 12px !important;
+}
+
+.ant-btn:hover:not(:disabled),
+.ant-btn:focus {
+  transform: translate(-1px, -1px);
+  box-shadow: 4px 4px 0 var(--ink) !important;
+  border-color: var(--ink) !important;
+}
+
+.ant-btn:active:not(:disabled) {
+  transform: translate(2px, 2px);
+  box-shadow: 1px 1px 0 var(--ink) !important;
+}
+
+.ant-btn[disabled],
+.ant-btn[disabled]:hover {
+  opacity: 0.55;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: 3px 3px 0 var(--ink) !important;
+}
+
+/* Primary = yellow chip (ink text: 12.8:1 contrast) */
+.ant-btn-primary {
+  background: var(--accent) !important;
+  color: var(--ink) !important;
+  border-color: var(--ink) !important;
+}
+.ant-btn-primary:hover:not(:disabled),
+.ant-btn-primary:focus {
+  background: #ffd95e !important;
+}
+
+/* Ghost = solid white with ink border */
+.ant-btn-ghost {
+  background: #fff !important;
+  color: var(--ink) !important;
+  border-color: var(--ink) !important;
+}
+
+/* Danger: white chip with red border + red hard shadow */
+.ant-btn-dangerous,
+.ant-btn-danger.ant-btn {
+  background: #fff !important;
+  color: var(--danger) !important;
+  border-color: var(--danger) !important;
+  box-shadow: 3px 3px 0 var(--danger) !important;
+}
+.ant-btn-dangerous:hover:not(:disabled),
+.ant-btn-danger.ant-btn:hover:not(:disabled) {
+  box-shadow: 4px 4px 0 var(--danger) !important;
+  background: #fff !important;
+  border-color: var(--danger) !important;
+}
+.ant-btn-dangerous:active:not(:disabled),
+.ant-btn-danger.ant-btn:active:not(:disabled) {
+  box-shadow: 1px 1px 0 var(--danger) !important;
+}
+
+/* Solid danger (confirm-dialog okType="danger", Empty Table button) */
+.ant-btn-dangerous.ant-btn-primary {
+  background: var(--danger) !important;
+  color: #fff !important;
+  border-color: var(--ink) !important;
+  box-shadow: 3px 3px 0 var(--ink) !important;
+}
+
+/* Solid danger hover/active: the generic .ant-btn-dangerous:hover flips the
+   bg to white, which left white text on white. Pin the state here.
+   Owner: hover frame goes yellow (accent), not red. */
+.ant-btn-dangerous.ant-btn-primary:hover:not(:disabled) {
+  background: var(--danger-deep) !important;
+  color: #fff !important;
+  border-color: var(--accent) !important;
+  box-shadow: 4px 4px 0 var(--ink) !important;
+}
+
+.ant-btn-dangerous.ant-btn-primary:active:not(:disabled) {
+  box-shadow: 1px 1px 0 var(--ink) !important;
+}
+
+/* Text buttons: flat until hover, then an ink frame appears */
+.ant-btn-text {
+  background: transparent !important;
+  border: 2px solid transparent !important;
+  box-shadow: none !important;
+  color: var(--ink) !important;
+}
+.ant-btn-text:hover:not(:disabled),
+.ant-btn-text:focus {
+  background: #fff !important;
+  border-color: var(--ink) !important;
+  box-shadow: 2px 2px 0 var(--ink) !important;
+  transform: none;
+}
+.ant-btn-text:active:not(:disabled) {
+  box-shadow: none !important;
+}
+
+/* --- Cards ----------------------------------------------------------------- */
+.ant-card {
+  background: #fff !important;
+  border: 2px solid var(--ink) !important;
+  border-radius: 12px !important;
+  box-shadow: 6px 6px 0 var(--ink) !important;
+}
+
+.ant-card .ant-card-head {
+  border-bottom: 2px solid var(--ink) !important;
+  min-height: auto !important;
+  border-radius: 10px 10px 0 0 !important;
+}
+
+.ant-card .ant-card-head-title,
+.ant-card .ant-card-body {
+  color: var(--ink);
+}
+
+.ant-card.ant-card-small,
+.ant-card-size-small {
+  border-radius: 10px !important;
+  box-shadow: 4px 4px 0 var(--ink) !important;
+}
+
+/* Wrapper used around tables */
+.table-card-wrapper {
+  background: #fff !important;
+  border: 2px solid var(--ink) !important;
+  border-radius: 12px !important;
+  box-shadow: 6px 6px 0 var(--ink) !important;
+}
+
+/* Generic neobrutal panel utility (filter bars, suggestion lists, etc.) */
+.nb-panel {
+  background: #fff;
+  border: 2px solid var(--ink);
+  border-radius: 12px;
+  box-shadow: 4px 4px 0 var(--ink);
+}
+
+/* --- Stat cards ------------------------------------------------------------- */
+.stat-card {
+  background: #fff !important;
+  border: 2px solid var(--ink) !important;
+  border-radius: 12px !important;
+  box-shadow: 6px 6px 0 var(--ink) !important;
+  transition: transform 0.12s ease, box-shadow 0.12s ease !important;
+}
+
+.stat-card:hover {
+  transform: translate(-2px, -2px);
+  box-shadow: 8px 8px 0 var(--ink) !important;
+}
+
+.stat-card h2 {
+  color: var(--ink) !important;
+  margin-bottom: 8px !important;
+}
+
+.stat-card p {
+  color: #4a4a44 !important;
+  font-size: 13px !important;
+}
+
+/* --- Tables ------------------------------------------------------------------- */
+.ant-table {
+  background: #fff !important;
+  color: var(--ink) !important;
+  font-family: inherit !important;
+}
+
+.ant-table-wrapper .ant-table-thead > tr > th {
+  background: var(--paper-dark) !important;
+  color: var(--ink) !important;
+  font-weight: 700 !important;
+  border-bottom: 2px solid var(--ink) !important;
+  border-radius: 0 !important;
+}
+
+.ant-table-wrapper .ant-table-tbody > tr > td {
+  border-bottom: 1px solid var(--line) !important;
+}
+
+.ant-table-tbody > tr:hover > td,
+.ant-table-tbody > tr.ant-table-row-hover > td,
+.ant-table-tbody > tr > td.ant-table-cell-row-hover {
+  background: var(--paper-tint) !important;
+}
+
+.ant-table-tbody > tr.ant-table-row-selected > td,
+.ant-table-tbody > tr.ant-table-row-selected:hover > td {
+  background: var(--accent-tint) !important;
+}
+
+.ant-table-cell-fix-left,
+.ant-table-cell-fix-right {
+  background: #fff !important;
+}
+
+.ant-table-title {
+  padding: 12px 0 !important;
+}
+
+.ant-table-pagination.ant-pagination {
+  margin: 16px 0 !important;
+}
+
+/* Row selection checkbox */
+.ant-checkbox-inner {
+  border: 2px solid var(--ink) !important;
+  border-radius: 4px !important;
+  background: #fff !important;
+}
+.ant-checkbox-checked .ant-checkbox-inner {
+  background: var(--accent) !important;
+  border-color: var(--ink) !important;
+}
+.ant-checkbox-inner::after {
+  border-color: var(--ink) !important;
+}
+.ant-checkbox:hover .ant-checkbox-inner,
+.ant-checkbox-input:focus + .ant-checkbox-inner {
+  border-color: var(--ink) !important;
+}
+
+/* --- Inputs / Selects / Pickers ---------------------------------------------- */
+.ant-input,
+.ant-input-affix-wrapper,
+.ant-input-textarea,
+textarea.ant-input {
+  background: #fff !important;
+  border: 2px solid var(--ink) !important;
+  border-radius: 10px !important;
+  box-shadow: 3px 3px 0 var(--ink) !important;
+  color: var(--ink) !important;
+  font-family: inherit !important;
+}
+
+.ant-input::placeholder,
+.ant-input-affix-wrapper .ant-input::placeholder {
+  color: #6b6b63 !important;
+}
+
+/* Nested inner input must not double-frame */
+.ant-input-affix-wrapper .ant-input,
+.ant-input-textarea.ant-input {
+  border: none !important;
+  background: transparent !important;
+  box-shadow: none !important;
+}
+
+/* Focus = yellow hard shadow (state change, not a blue glow) */
+.ant-input:focus,
+.ant-input-affix-wrapper:focus,
+.ant-input-affix-wrapper-focused,
+textarea.ant-input:focus {
+  border-color: var(--ink) !important;
+  box-shadow: 3px 3px 0 var(--accent) !important;
+  outline: none !important;
+}
+
+/* Readonly / disabled */
+.ant-input[readonly],
+.ant-input-disabled,
+.readonly-input,
+.ant-input[readonly].readonly-input {
+  background: var(--paper-dark) !important;
+  color: #4a4a44 !important;
+  border-style: dashed !important;
+  box-shadow: none !important;
+  cursor: not-allowed !important;
+}
+
+/* Select */
+.ant-select:not(.ant-select-disabled) .ant-select-selector {
+  background: #fff !important;
+  border: 2px solid var(--ink) !important;
+  border-radius: 10px !important;
+  box-shadow: 3px 3px 0 var(--ink) !important;
+  color: var(--ink) !important;
+}
+
+.ant-select-selection-placeholder {
+  color: #6b6b63 !important;
+}
+
+.ant-select-selection-item,
+.ant-select-selection-search-input,
+.ant-select-selection-search-input input {
+  color: var(--ink) !important;
+  font-family: inherit !important;
+}
+
+.ant-select-arrow {
+  color: var(--ink) !important;
+}
+
+.ant-select.ant-select-focused:not(.ant-select-disabled) .ant-select-selector {
+  border-color: var(--ink) !important;
+  box-shadow: 3px 3px 0 var(--accent) !important;
+}
+
+.ant-select-dropdown {
+  background: #fff !important;
+  border: 2px solid var(--ink) !important;
+  border-radius: 12px !important;
+  box-shadow: 8px 8px 0 var(--ink) !important;
+  padding: 6px !important;
+}
+
+.ant-select-item {
+  border-radius: 8px !important;
+  color: var(--ink) !important;
+  font-family: inherit !important;
+}
+
+.ant-select-item-option:hover,
+.ant-select-item-option-active {
+  background: var(--paper-tint) !important;
+  color: var(--ink) !important;
+}
+
+.ant-select-item-option-selected,
+.ant-select-item-option-selected:hover {
+  background: var(--accent) !important;
+  color: var(--ink) !important;
+  font-weight: 700 !important;
+}
+
+.ant-select-item-option-disabled {
+  color: #6b6b63 !important;
+}
+
+/* DatePicker / RangePicker */
+.ant-picker {
+  background: #fff !important;
+  border: 2px solid var(--ink) !important;
+  border-radius: 10px !important;
+  box-shadow: 3px 3px 0 var(--ink) !important;
+  color: var(--ink) !important;
+}
+
+.ant-picker:focus,
+.ant-picker-focused {
+  border-color: var(--ink) !important;
+  box-shadow: 3px 3px 0 var(--accent) !important;
+}
+
+.ant-picker-input > input {
+  color: var(--ink) !important;
+  font-family: inherit !important;
+}
+
+.ant-picker-input > input::placeholder {
+  color: #6b6b63 !important;
+}
+
+.ant-picker-suffix {
+  color: var(--ink) !important;
+}
+
+.ant-picker-dropdown .ant-picker-panel-container {
+  background: #fff !important;
+  border: 2px solid var(--ink) !important;
+  border-radius: 12px !important;
+  box-shadow: 8px 8px 0 var(--ink) !important;
+  color: var(--ink) !important;
+}
+
+.ant-picker-dropdown .ant-picker-panel-container .ant-picker-header {
+  border-bottom: 1px solid var(--line) !important;
+}
+
+.ant-picker-dropdown .ant-picker-header,
+.ant-picker-dropdown .ant-picker-content th,
+.ant-picker-dropdown .ant-picker-cell-inner {
+  color: var(--ink) !important;
+}
+
+.ant-picker-dropdown .ant-picker-cell:hover .ant-picker-cell-inner {
+  background: var(--paper-tint) !important;
+}
+
+.ant-picker-dropdown .ant-picker-cell-in-view .ant-picker-cell-inner {
+  font-weight: 600;
+}
+
+.ant-picker-dropdown .ant-picker-cell-today .ant-picker-cell-inner {
+  box-shadow: 0 0 0 2px var(--accent) inset !important;
+}
+
+.ant-picker-dropdown .ant-picker-cell-selected .ant-picker-cell-inner,
+.ant-picker-dropdown .ant-picker-cell-range-start .ant-picker-cell-inner,
+.ant-picker-dropdown .ant-picker-cell-range-end .ant-picker-cell-inner {
+  background: var(--accent) !important;
+  border: 2px solid var(--ink) !important;
+  color: var(--ink) !important;
+  font-weight: 700 !important;
+}
+
+.ant-picker-dropdown .ant-picker-cell-in-range .ant-picker-cell-inner {
+  background: var(--paper-tint) !important;
+  border-radius: 0 !important;
+}
+
+.ant-picker-dropdown .ant-picker-today .ant-picker-cell-in-view .ant-picker-cell-inner {
+  box-shadow: 0 0 0 2px var(--accent) inset !important;
+}
+
+/* --- Modal --------------------------------------------------------------------- */
+.ant-modal-content {
+  background: #fff !important;
+  border: 2px solid var(--ink) !important;
+  border-radius: 14px !important;
+  box-shadow: 10px 10px 0 var(--ink) !important;
+  color: var(--ink) !important;
+}
+
+.ant-modal-header {
+  background: #fff !important;
+  border-bottom: 2px solid var(--ink) !important;
+  border-radius: 12px 12px 0 0 !important;
+}
+
+.ant-modal-title {
+  color: var(--ink) !important;
+  font-weight: 800 !important;
+  font-family: 'Archivo Black', var(--font-space-grotesk), sans-serif !important;
+}
+
+.ant-modal-close {
+  color: var(--ink) !important;
+  border-radius: 8px !important;
+}
+.ant-modal-close:hover {
+  background: var(--paper-tint) !important;
+}
+
+.ant-modal-footer {
+  border-top: none !important;
+  padding: 12px 24px 20px !important;
+}
+
+/* --- Tabs ------------------------------------------------------------------------ */
+.ant-tabs-nav::before {
+  border-bottom: 2px solid var(--ink) !important;
+}
+
+.ant-tabs-tab {
+  background: #fff !important;
+  border: 2px solid var(--ink) !important;
+  border-radius: 10px !important;
+  box-shadow: 3px 3px 0 var(--ink) !important;
+  margin: 16px 12px 0 0 !important;
+  padding: 10px 18px !important;
+  top: -2px !important;
+}
+
+.ant-tabs-tab .ant-tabs-tab-btn {
+  color: var(--ink) !important;
+  font-weight: 600 !important;
+  font-family: inherit !important;
+}
+
+.ant-tabs-tab:hover .ant-tabs-tab-btn {
+  color: var(--ink) !important;
+}
+
+.ant-tabs-tab-active,
+.ant-tabs-tab-active:hover {
+  background: var(--accent) !important;
+}
+
+.ant-tabs-tab-active .ant-tabs-tab-btn {
+  color: var(--ink) !important;
+  font-weight: 700 !important;
+}
+
+.ant-tabs-ink-bar {
+  background: var(--ink) !important;
+  height: 3px !important;
+}
+
+.ant-tabs-content-holder {
+  color: var(--ink);
+}
+
+/* --- Tags (status chips) ----------------------------------------------------------- */
+.ant-tag {
+  background: #fff !important;
+  color: var(--ink) !important;
+  border: 2px solid var(--ink) !important;
+  border-radius: 8px !important;
+  font-weight: 700 !important;
+  font-family: inherit !important;
+  line-height: 1.4 !important;
+}
+
+/* Status colors keep their meaning: colored ink-style borders */
+.ant-tag-blue { border-color: #1d6fd6 !important; color: #1d6fd6 !important; }
+.ant-tag-green { border-color: #15803d !important; color: #15803d !important; }
+.ant-tag-red { border-color: #D61F1F !important; color: #D61F1F !important; }
+.ant-tag-purple { border-color: #7c3aed !important; color: #7c3aed !important; }
+.ant-tag-orange { border-color: #b45309 !important; color: #b45309 !important; }
+
+/* --- Segmented -------------------------------------------------------------------------- */
+.ant-segmented {
+  background: #fff !important;
+  border: 2px solid var(--ink) !important;
+  border-radius: 12px !important;
+  box-shadow: 3px 3px 0 var(--ink) !important;
+  color: var(--ink) !important;
+}
+
+.ant-segmented-item {
+  color: var(--ink) !important;
+  font-weight: 600 !important;
+  font-family: inherit !important;
+}
+
+.ant-segmented-item-selected {
+  background: var(--accent) !important;
+  color: var(--ink) !important;
+  font-weight: 700 !important;
+  border-radius: 8px !important;
+  box-shadow: none !important;
+}
+
+/* --- Forms ------------------------------------------------------------------------------- */
+.ant-form-item-label > label {
+  color: var(--ink) !important;
+  font-weight: 600 !important;
+  font-family: inherit !important;
+}
+
+.ant-form-item-required::before {
+  color: var(--danger) !important;
+}
+
+.ant-form-item-explain-error {
+  color: var(--danger) !important;
   font-weight: 600 !important;
 }
 
-.login-select .ant-select-item-option-active {
-  background: linear-gradient(135deg, rgba(102, 126, 234, 0.15), rgba(118, 75, 162, 0.15)) !important;
+.ant-form-item-extra {
+  color: #4a4a44 !important;
 }
 
-/* Dark mode select styling */
-.theme-dark .login-select .ant-select-selector {
-  background: rgba(45, 45, 65, 0.8) !important;
-  border-color: #444 !important;
+.ant-form-item-has-error .ant-input,
+.ant-form-item-has-error .ant-input-affix-wrapper,
+.ant-form-item-has-error .ant-select-selector,
+.ant-form-item-has-error .ant-picker {
+  border-color: var(--danger) !important;
+  box-shadow: 3px 3px 0 var(--danger) !important;
 }
 
-.theme-dark .login-select:hover .ant-select-selector {
-  border-color: #667eea !important;
+/* --- Alert ----------------------------------------------------------------------------------- */
+.ant-alert {
+  background: #fff !important;
+  border: 2px solid var(--ink) !important;
+  border-radius: 12px !important;
+  box-shadow: 4px 4px 0 var(--ink) !important;
+  color: var(--ink) !important;
 }
 
-.theme-dark .login-select .ant-select-selection-placeholder {
-  color: #888 !important;
+/* --- Message toasts (antMessage) ------------------------------------------------------------- */
+.ant-message .ant-message-notice-content {
+  background: #fff !important;
+  border: 2px solid var(--ink) !important;
+  border-radius: 10px !important;
+  box-shadow: 4px 4px 0 var(--ink) !important;
+  color: var(--ink) !important;
+  font-family: inherit !important;
 }
 
-.theme-dark .login-select .ant-select-selection-item {
-  color: #ededed !important;
+/* --- Notification (top-right) ------------------------------------------------------------------ */
+.ant-notification-notice {
+  background: #fff !important;
+  border: 2px solid var(--ink) !important;
+  border-radius: 12px !important;
+  box-shadow: 8px 8px 0 var(--ink) !important;
+  color: var(--ink) !important;
 }
 
-.theme-dark .login-select .ant-select-dropdown {
-  background: rgba(26, 26, 46, 0.98) !important;
-  border-color: #444 !important;
-  backdrop-filter: blur(20px) !important;
+.ant-notification-notice-message {
+  color: var(--ink) !important;
+  font-weight: 700 !important;
 }
 
-.theme-dark .login-select .ant-select-item {
-  color: #ededed !important;
+.ant-notification-notice-description {
+  color: #4a4a44 !important;
 }
 
-.theme-dark .login-select .ant-select-item-option {
-  background: transparent !important;
-}
-
-.theme-dark .login-select .ant-select-item-option:hover {
-  background: linear-gradient(135deg, rgba(102, 126, 234, 0.2), rgba(118, 75, 162, 0.2)) !important;
-}
-
-.theme-dark .login-select .ant-select-item-option-selected {
-  background: linear-gradient(135deg, #667eea, #764ba2) !important;
-  color: white !important;
-}
-
-.theme-dark .login-select .ant-select-item-option-active {
-  background: linear-gradient(135deg, rgba(102, 126, 234, 0.3), rgba(118, 75, 162, 0.3)) !important;
-}
-
-.login-input.ant-input-affix-wrapper {
-  padding: 8px 16px !important;
-  height: auto !important;
-}
-
-.login-input .ant-input {
-  background: transparent !important;
-  border: none !important;
-  box-shadow: none !important;
+/* --- Popover ------------------------------------------------------------------------------------- */
+.ant-popover-inner {
+  background: #fff !important;
+  border: 2px solid var(--ink) !important;
+  border-radius: 12px !important;
+  box-shadow: 8px 8px 0 var(--ink) !important;
   padding: 0 !important;
-  color: #333 !important;
 }
 
-.login-input.ant-input-affix-wrapper:hover,
-.login-input.ant-input-affix-wrapper-focused {
-  border-color: #667eea !important;
-  box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.1) !important;
+/* Arrow would break the 2px frame; the framed panel reads clearly without it */
+.ant-popover .ant-popover-arrow {
+  display: none !important;
 }
 
-.login-input.ant-input-affix-wrapper-focused {
-  box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.2) !important;
+/* --- Tooltip --------------------------------------------------------------------------------------- */
+.ant-tooltip .ant-tooltip-inner {
+  background: var(--ink) !important;
+  color: #fff !important;
+  border-radius: 8px !important;
+  font-weight: 500 !important;
+  box-shadow: 3px 3px 0 rgba(20, 20, 20, 0.35) !important;
 }
 
-/* Password field eye icon fixes */
-.login-input .ant-input-password-icon,
-.login-input .ant-input-password-icon:hover,
-.login-input .ant-input-password-icon:focus {
-  color: #667eea !important;
-  cursor: pointer !important;
+/* --- Pagination --------------------------------------------------------------------------------------- */
+.ant-pagination {
+  font-family: inherit !important;
 }
 
-/* Dark mode password field fixes */
-.theme-dark .login-input .ant-input {
-  color: #ededed !important;
+.ant-pagination-item {
+  background: #fff !important;
+  border: 2px solid var(--ink) !important;
+  border-radius: 8px !important;
+  box-shadow: 2px 2px 0 var(--ink) !important;
 }
 
-.theme-dark .login-input .ant-input::placeholder {
-  color: #888 !important;
+.ant-pagination-item a {
+  color: var(--ink) !important;
+  font-weight: 600 !important;
 }
 
-.theme-dark .login-input .ant-input-password-icon,
-.theme-dark .login-input .ant-input-password-icon:hover,
-.theme-dark .login-input .ant-input-password-icon:focus {
-  color: #667eea !important;
+.ant-pagination-item-active {
+  background: var(--accent) !important;
 }
 
-/* Autofill/saved password styling */
-.login-input:-webkit-autofill,
-.login-input:-webkit-autofill:hover,
-.login-input:-webkit-autofill:focus,
-.login-input:-webkit-autofill:active {
-  -webkit-box-shadow: 0 0 0 30px white inset !important;
-  -webkit-text-fill-color: #333 !important;
-  -webkit-background-clip: text !important;
-  background-color: white !important;
-  transition: background-color 5000s ease-in-out 0s !important;
-  caret-color: #333 !important;
+.ant-pagination-item-active a {
+  color: var(--ink) !important;
+  font-weight: 700 !important;
 }
 
-.theme-dark .login-input:-webkit-autofill,
-.theme-dark .login-input:-webkit-autofill:hover,
-.theme-dark .login-input:-webkit-autofill:focus,
-.theme-dark .login-input:-webkit-autofill:active {
-  -webkit-box-shadow: 0 0 0 30px rgba(26, 26, 46, 0.95) inset !important;
-  -webkit-text-fill-color: #ededed !important;
-  -webkit-background-clip: text !important;
-  background-color: rgba(26, 26, 46, 0.95) !important;
-  transition: background-color 5000s ease-in-out 0s !important;
-  caret-color: #ededed !important;
+.ant-pagination-prev .ant-pagination-item-link,
+.ant-pagination-next .ant-pagination-item-link {
+  background: #fff !important;
+  border: 2px solid var(--ink) !important;
+  border-radius: 8px !important;
+  box-shadow: 2px 2px 0 var(--ink) !important;
+  color: var(--ink) !important;
 }
 
-/* Username field autofill */
-.login-input input:-webkit-autofill,
-.login-input input:-webkit-autofill:hover,
-.login-input input:-webkit-autofill:focus,
-.login-input input:-webkit-autofill:active {
-  -webkit-box-shadow: 0 0 0 30px white inset !important;
-  -webkit-text-fill-color: #333 !important;
-  -webkit-background-clip: text !important;
-  background-color: white !important;
-  transition: background-color 5000s ease-in-out 0s !important;
+.ant-pagination-jump-prev,
+.ant-pagination-jump-next {
+  color: var(--ink) !important;
 }
 
-.theme-dark .login-input input:-webkit-autofill,
-.theme-dark .login-input input:-webkit-autofill:hover,
-.theme-dark .login-input input:-webkit-autofill:focus,
-.theme-dark .login-input input:-webkit-autofill:active {
-  -webkit-box-shadow: 0 0 0 30px rgba(26, 26, 46, 0.95) inset !important;
-  -webkit-text-fill-color: #ededed !important;
-  -webkit-background-clip: text !important;
-  background-color: rgba(26, 26, 46, 0.95) !important;
-  transition: background-color 5000s ease-in-out 0s !important;
+/* --- Badge (notification count) ---------------------------------------------------------------------- */
+.ant-badge .ant-badge-count {
+  background: var(--danger) !important;
+  border: 2px solid #fff !important;
+  box-shadow: 2px 2px 0 rgba(20, 20, 20, 0.5) !important;
+  font-family: inherit !important;
 }
 
-/* Password field input text visibility */
-.login-input input[type="password"] {
-  color: #333 !important;
-  font-family: 'password', 'Courier New', monospace !important;
+/* --- Empty / Spin -------------------------------------------------------------------------------------- */
+.ant-empty-description {
+  color: #4a4a44 !important;
 }
 
-.theme-dark .login-input input[type="password"] {
-  color: #ededed !important;
+.ant-spin {
+  color: var(--ink) !important;
 }
 
-/* Remove autofill background completely */
-@keyframes onAutoFillStart {
-  from { }
-  to { }
+/* --- Typography ------------------------------------------------------------------------------------------ */
+.ant-typography {
+  color: var(--ink) !important;
+  font-family: inherit !important;
 }
 
-@keyframes onAutoFillCancel {
-  from { }
-  to { }
+.ant-typography h1,
+.ant-typography h2,
+.ant-typography h3,
+.ant-typography-level-1,
+.ant-typography-level-2,
+.ant-typography-level-3 {
+  font-family: 'Archivo Black', var(--font-space-grotesk), sans-serif !important;
+  font-weight: 400 !important;
+  color: var(--ink) !important;
+  letter-spacing: 0 !important;
 }
 
-.login-input:-webkit-autofill {
-  animation-name: onAutoFillStart !important;
-  transition: all 5000s ease-in-out 0s !important;
+.ant-typography-secondary {
+  color: #4a4a44 !important;
 }
 
-.login-input:not(:-webkit-autofill) {
-  animation-name: onAutoFillCancel !important;
+.ant-typography code {
+  background: var(--paper-dark) !important;
+  border: 1px solid var(--ink) !important;
+  border-radius: 6px !important;
+  color: var(--ink) !important;
 }
 
-/* Password field suffix icon styling */
-.login-input .ant-input-suffix {
-  color: #667eea !important;
+/* --- Scrollbar ------------------------------------------------------------------------------------------ */
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
 }
 
-.theme-dark .login-input .ant-input-suffix {
-  color: #667eea !important;
+::-webkit-scrollbar-track {
+  background: var(--paper-dark);
 }
 
-.login-input .ant-input-suffix .anticon {
+::-webkit-scrollbar-thumb {
+  background: var(--ink);
+  border-radius: 3px;
+  border: 2px solid var(--paper-dark);
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #3a3a3a;
+}
+
+/* --- Dropdown menus (user info popup) ------------------------------------- */
+.ant-dropdown .ant-dropdown-menu {
+  background: #fff !important;
+  border: 2px solid #141414 !important;
+  border-radius: 12px !important;
+  box-shadow: 8px 8px 0 #141414 !important;
+  padding: 4px !important;
+  color: #141414 !important;
+}
+
+.ant-dropdown .ant-dropdown-menu-item {
+  color: #141414 !important;
+  border-radius: 8px !important;
+  font-family: inherit !important;
+}
+
+.ant-dropdown .ant-dropdown-menu-item:hover {
+  background: #fbf6e7 !important;
+  color: #141414 !important;
+}
+
+/* --- Menu chips (generic, used by the mobile drawer) ----------------------- */
+.ant-menu-inline .ant-menu-item {
+  color: #4a4a44 !important;
+  background: transparent !important;
+  margin: 4px 8px !important;
+  width: calc(100% - 16px) !important;
+  border-radius: 10px !important;
+  font-weight: 500 !important;
+  transition: background 0.1s ease, color 0.1s ease !important;
+}
+
+.ant-menu-inline .ant-menu-item .anticon {
   color: inherit !important;
-  font-size: 16px !important;
 }
 
-.login-input .ant-input-suffix .anticon:hover {
-  color: #764ba2 !important;
+.ant-menu-inline .ant-menu-item:hover {
+  color: #141414 !important;
+  background: #fbf6e7 !important;
 }
 
-.theme-dark .login-input .ant-input-suffix .anticon:hover {
-  color: #764ba2 !important;
+.ant-menu-inline .ant-menu-item-selected,
+.ant-menu-inline .ant-menu-item-selected:hover {
+  background: #FFD23F !important;
+  color: #141414 !important;
+  font-weight: 700 !important;
+}
+
+.ant-menu-inline .ant-menu-item-selected .anticon {
+  color: #141414 !important;
+}
+
+/* Sider (ink panel) variants: higher specificity than the generic rules */
+.ant-layout-sider .ant-menu .ant-menu-item {
+  color: rgba(255, 255, 255, 0.72) !important;
+  background: transparent !important;
+}
+
+.ant-layout-sider .ant-menu .ant-menu-item:hover {
+  color: #fff !important;
+  background: rgba(255, 255, 255, 0.08) !important;
+}
+
+.ant-layout-sider .ant-menu .ant-menu-item-selected,
+.ant-layout-sider .ant-menu .ant-menu-item-selected:hover {
+  background: #FFD23F !important;
+  color: #141414 !important;
+}
+
+.ant-layout-sider .ant-menu .ant-menu-item-selected .anticon {
+  color: #141414 !important;
+}
+
+/* Text buttons on the ink sider: white-ish text, no ink frame */
+.ant-layout-sider .ant-btn-text {
+  color: rgba(255, 255, 255, 0.75) !important;
+  background: transparent !important;
+  border-color: transparent !important;
+  box-shadow: none !important;
+}
+
+.ant-layout-sider .ant-btn-text:hover:not(:disabled),
+.ant-layout-sider .ant-btn-text:focus {
+  color: #fff !important;
+  background: rgba(255, 255, 255, 0.08) !important;
+  box-shadow: none !important;
+  transform: none;
+}
+
+.ant-layout-sider .ant-btn-text:active:not(:disabled) {
+  box-shadow: none !important;
+}
+
+.ant-layout-sider .ant-btn-text.ant-btn-dangerous {
+  color: #ff9b9b !important;
+}
+
+.ant-layout-sider .ant-btn-text.ant-btn-dangerous:hover {
+  color: #fff !important;
+  background: rgba(255, 155, 155, 0.12) !important;
+}
+
+/* ================= MOBILE (≤768px) =========================================
+   Re-thought for touch: 44px minimum tap targets, viewport-capped floating
+   surfaces, tighter gutters, denser tables. Desktop styles stay untouched. */
+@media (max-width: 768px) {
+  /* Touch targets ---------------------------------------------------------- */
+  .dashboard-header .ant-btn,
+  .dashboard-header .header-user-trigger {
+    min-height: 44px;
+    min-width: 44px;
+  }
+
+  .ant-btn {
+    min-height: 44px;
+  }
+
+  .ant-input,
+  .ant-input-affix-wrapper,
+  .ant-input-textarea,
+  .ant-select-selector,
+  .ant-picker {
+    min-height: 44px;
+  }
+
+  .ant-segmented {
+    min-height: 44px;
+  }
+
+  .ant-menu-inline .ant-menu-item {
+    min-height: 44px;
+  }
+
+  .ant-tabs-tab {
+    padding: 12px 12px !important;
+  }
+
+  /* Floating surfaces stay inside the viewport ---------------------------- */
+  .ant-modal {
+    max-width: calc(100vw - 16px);
+    padding: 0 8px;
+  }
+
+  .ant-modal .ant-modal-content {
+    border-radius: 12px !important;
+  }
+
+  .ant-popover .ant-popover-inner {
+    max-width: calc(100vw - 16px);
+  }
+
+  .ant-drawer-content-wrapper {
+    max-width: 100vw !important;
+  }
+
+  /* Tables: denser cells, scrollable rows, wrapping pagination ------------- */
+  .ant-table {
+    font-size: 13px;
+  }
+
+  .ant-table-cell {
+    padding: 10px 8px !important;
+  }
+
+  .ant-table-thead > tr > th {
+    white-space: nowrap;
+  }
+
+  /* Fixed-layout tables (scroll.x + column widths): body cells must wrap,
+     otherwise long values overflow the cell and print on top of the next
+     column. overflow-wrap keeps long unbroken tokens (no. terima, PLU)
+     inside their column. */
+  .ant-table-tbody > tr > td {
+    overflow-wrap: anywhere;
+  }
+
+  .ant-table-content {
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .ant-pagination {
+    flex-wrap: wrap;
+    justify-content: center;
+    row-gap: 8px;
+  }
+
+  /* Gutters and card bodies ------------------------------------------------- */
+  .rb-header {
+    padding: 16px !important;
+  }
+
+  .rb-header .ant-typography {
+    font-size: 20px;
+  }
+
+  .rb-body {
+    padding: 0 12px 16px !important;
+  }
+
+  .rb-form-card .ant-card-body {
+    padding: 24px 16px !important;
+  }
+
+  .rb-form-card .ant-card-head {
+    padding: 12px 16px !important;
+  }
+
+  .step1-wrap {
+    padding: 4px !important;
+  }
+
+  .bulk-bar {
+    align-items: flex-start;
+  }
+
+  /* Footer respects the home-indicator safe area --------------------------- */
+  .ant-layout-footer {
+    padding-bottom: max(12px, env(safe-area-inset-bottom));
+  }
+}
+
+@media (max-width: 480px) {
+  .ant-modal .ant-modal-header {
+    padding: 16px 16px 8px;
+  }
+
+  .ant-table-cell {
+    padding: 8px 6px !important;
+  }
+
+  .ant-table {
+    font-size: 12px;
+  }
+
+  .ant-tabs-tab {
+    padding: 10px 10px !important;
+  }
 }

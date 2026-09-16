@@ -7,7 +7,7 @@ import {
 import { 
     PlusOutlined, HistoryOutlined, CheckCircleOutlined, 
     CloseCircleOutlined, InfoCircleOutlined, SendOutlined, ReloadOutlined 
-} from '@ant-design/icons';
+} from '@/components/md-icons';
 import { useAuth } from '@/context/AuthContext';
 
 const { Title, Text, Paragraph } = Typography;
@@ -209,7 +209,6 @@ export default function RequestBarang() {
             content: `Anda yakin menyetujui ${selectedRowKeys.length} permintaan sekaligus? ID PLU akan menggunakan usulan awal pengguna (jika ada) atau di-generate otomatis untuk tipe NON.`,
             okText: 'Setujui Semua',
             cancelText: 'Batal',
-            okButtonProps: { style: { background: '#52c41a', borderColor: '#52c41a' } },
             onOk: async () => {
                 setLoading(true);
                 try {
@@ -261,7 +260,7 @@ export default function RequestBarang() {
             render: (_: any, record: any) => isAdmin ? (
                 <div>
                     <Text strong>{record.Username}</Text>
-                    <div style={{ fontSize: 11, color: '#888' }}>{record.OPDName || '-'}</div>
+                    <div style={{ fontSize: 11, color: '#4a4a44' }}>{record.OPDName || '-'}</div>
                 </div>
             ) : (
                 <Text>{record.KetObjekRSSub}</Text>
@@ -287,7 +286,7 @@ export default function RequestBarang() {
             key: 'CatatanAdmin', 
             width: 220,
             render: (val: string) => val ? (
-                <Text ellipsis={{ tooltip: { title: val, color: 'blue' } }} style={{ width: 200, display: 'inline-block' }}>
+                <Text ellipsis={{ tooltip: { title: val } }} style={{ width: 200, display: 'inline-block' }}>
                     {val}
                 </Text>
             ) : '-'
@@ -299,12 +298,12 @@ export default function RequestBarang() {
         { title: 'User / OPD', key: 'user', render: (_: any, record: any) => (
             <div>
                 <Text strong>{record.Username}</Text>
-                <div style={{ fontSize: 11, color: '#888' }}>{record.OPDName || '-'}</div>
+                <div style={{ fontSize: 11, color: '#4a4a44' }}>{record.OPDName || '-'}</div>
             </div>
         )},
         { title: 'Detail Barang', key: 'detail', render: (_: any, record: any) => (
             <div>
-                <div style={{ fontSize: 12, color: '#2F54EB' }}>[{record.ObjekRSSub}] {record.KetObjekRSSub}</div>
+                <div style={{ fontSize: 12, color: '#141414', fontWeight: 600 }}>[{record.ObjekRSSub}] {record.KetObjekRSSub}</div>
                 <Text strong>{record.Keterangan}</Text>
                 <div style={{ fontSize: 12 }}>Satuan: {record.Satuan} | Tipe: {record.StaID}</div>
                 {record.IDPLU_Req && <Text type="secondary" style={{ fontSize: 11 }}>Req ID: {record.IDPLU_Req}</Text>}
@@ -328,11 +327,6 @@ export default function RequestBarang() {
                                 setApproveModalOpen(true);
                                 approveForm.setFieldsValue({ IDPLU_Req: record.IDPLU_Req });
                             }}
-                            style={{ 
-                                background: 'linear-gradient(90deg, #52c41a, #73d13d)', 
-                                border: 'none', 
-                                boxShadow: '0 2px 8px rgba(82, 196, 26, 0.2)' 
-                            }}
                         />
                     </Tooltip>
                     <Tooltip title="Tolak Permintaan">
@@ -352,7 +346,7 @@ export default function RequestBarang() {
         <div>
             <div style={{ overflow: 'hidden' }}>
                 {/* Header Section */}
-                <div style={{ 
+                <div className="rb-header" style={{ 
                     padding: '24px 32px', 
                     borderBottom: '1px solid var(--ant-color-border-secondary, #f0f0f0)'
                 }}>
@@ -360,11 +354,8 @@ export default function RequestBarang() {
                         <Col xs={24} sm={16}>
                             <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
                                 <Title level={3} style={{ 
-                                    margin: 0, 
-                                    fontWeight: 700,
-                                    background: 'linear-gradient(90deg, #1890ff 0%, #722ed1 100%)',
-                                    WebkitBackgroundClip: 'text',
-                                    WebkitTextFillColor: 'transparent',
+                                    margin: 0,
+                                    color: '#141414',
                                 }}>
                                     {isAdmin ? 'Manajemen Request Kode Barang' : 'Request Kode Barang Baru'}
                                 </Title>
@@ -383,7 +374,7 @@ export default function RequestBarang() {
                                 onClick={fetchData} 
                                 loading={loading}
                                 size="large"
-                                style={{ borderRadius: 8, width: '100%', maxWidth: 140 }}
+                                style={{ width: '100%', maxWidth: 140 }}
                             >
                                 Refresh
                             </Button>
@@ -391,7 +382,7 @@ export default function RequestBarang() {
                     </Row>
                 </div>
 
-                <div style={{ padding: '0 24px 24px' }}>
+                <div className="rb-body" style={{ padding: '0 24px 24px' }}>
                     <Tabs 
                         activeKey={activeTab} 
                         onChange={setActiveTab}
@@ -409,11 +400,11 @@ export default function RequestBarang() {
                                     children: (
                                         <Card variant="borderless" style={{ borderRadius: 12 }} className="table-card-wrapper">
                                             {selectedRowKeys.length > 0 && (
-                                                <div style={{ marginBottom: 16, padding: '12px 16px', background: 'var(--ant-color-primary-bg, #e6f7ff)', borderRadius: 8, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                                                    <Text strong style={{ color: 'var(--ant-color-primary, #1890ff)' }}>{selectedRowKeys.length} permintaan dipilih</Text>
+                                                <div className="bulk-bar" style={{ marginBottom: 16, padding: '12px 16px', background: '#FFF3C4', border: '2px solid #141414', borderRadius: 10, boxShadow: '4px 4px 0 #141414', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 12 }}>
+                                                    <Text strong style={{ color: '#141414' }}>{selectedRowKeys.length} permintaan dipilih</Text>
                                                     <Space>
-                                                        <Button type="primary" onClick={handleBulkApprove} style={{ background: '#52c41a', borderColor: '#52c41a', borderRadius: 6 }} icon={<CheckCircleOutlined />}>Approve Semua</Button>
-                                                        <Button danger onClick={handleBulkReject} icon={<CloseCircleOutlined />} style={{ borderRadius: 6 }}>Reject Semua</Button>
+                                                        <Button type="primary" onClick={handleBulkApprove} icon={<CheckCircleOutlined />}>Approve Semua</Button>
+                                                        <Button danger onClick={handleBulkReject} icon={<CloseCircleOutlined />}>Reject Semua</Button>
                                                     </Space>
                                                 </div>
                                             )}
@@ -440,19 +431,16 @@ export default function RequestBarang() {
                                         <div style={{ maxWidth: 680, margin: '24px auto' }}>
                                             <Card 
                                                 variant="borderless"
-                                                style={{ 
-                                                    borderRadius: 16,
-                                                    background: 'var(--ant-color-fill-alter, #fafafa)',
-                                                    border: '1px solid var(--ant-color-border-secondary, #f0f0f0)'
-                                                }}
+                                                className="rb-form-card"
+                                                style={{ borderRadius: 16 }}
                                                 styles={{ 
-                                                    header: { padding: '20px 24px', borderBottom: '1px solid var(--ant-color-border-secondary, #f0f0f0)' },
+                                                    header: { padding: '20px 24px' },
                                                     body: { padding: '32px 24px' }
                                                 }}
                                                 title={
                                                     <Space>
-                                                        <div style={{ padding: 8, background: 'rgba(24, 144, 255, 0.15)', borderRadius: 8, display: 'flex' }}>
-                                                            <PlusOutlined style={{ color: '#1890ff', fontSize: 16 }} />
+                                                        <div style={{ padding: 8, background: '#FFD23F', border: '2px solid #141414', borderRadius: 8, display: 'flex' }}>
+                                                            <PlusOutlined style={{ color: '#141414', fontSize: 16 }} />
                                                         </div>
                                                         <Text strong style={{ fontSize: 16, letterSpacing: 0.5 }}>Form Pengajuan</Text>
                                                     </Space>
@@ -544,10 +532,7 @@ export default function RequestBarang() {
                                                                 height: 48, 
                                                                 borderRadius: 8, 
                                                                 fontSize: 16,
-                                                                fontWeight: 600,
-                                                                background: 'linear-gradient(90deg, #1890ff, #2f54eb)',
-                                                                border: 'none',
-                                                                boxShadow: '0 4px 12px rgba(24, 144, 255, 0.4)'
+                                                                fontWeight: 600
                                                             }}
                                                         >
                                                             Kirim Permintaan
@@ -585,19 +570,19 @@ export default function RequestBarang() {
 
                 {/* Approval Modal */}
                 <Modal
-                    title={<Space><CheckCircleOutlined style={{ color: '#52c41a' }} />Konfirmasi Persetujuan</Space>}
+                    title={<Space><CheckCircleOutlined style={{ color: '#141414' }} />Konfirmasi Persetujuan</Space>}
                     open={approveModalOpen}
                     onOk={() => approveForm.submit()}
                     onCancel={() => setApproveModalOpen(false)}
                     confirmLoading={loading}
                     okText="Setujui"
-                    okButtonProps={{ type: 'primary', style: { background: '#52c41a', borderColor: '#52c41a' } }}
+                    okButtonProps={{ type: 'primary' }}
                     centered
                     styles={{ body: { padding: '24px 0 0' } }}
                 >
                     <div style={{ marginBottom: 24 }}>
                         <Paragraph>Anda akan menyetujui permintaan berikut:</Paragraph>
-                        <Card size="small" variant="borderless" style={{ background: 'var(--ant-color-fill-tertiary, rgba(0,0,0,0.04))' }}>
+                        <Card size="small" variant="borderless" style={{ background: '#F5F0DF' }}>
                             <Text strong style={{ fontSize: 16 }}>{selectedRequest?.Keterangan}</Text>
                             <div style={{ marginTop: 8 }}>
                                 <Tag color="blue">{selectedRequest?.Satuan}</Tag>
@@ -632,11 +617,7 @@ function AlertInfo({ text }: { text: string }) {
             title={<span style={{ fontSize: 14 }}>{text}</span>} 
             type="info" 
             showIcon 
-            style={{ 
-                borderRadius: 12, 
-                display: 'inline-flex',
-                boxShadow: '0 4px 12px rgba(0,0,0,0.05)'
-            }}
+            style={{ display: 'inline-flex' }}
         />
     );
 }

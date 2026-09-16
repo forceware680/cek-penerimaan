@@ -1,203 +1,162 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
-import { Card, Form, Input, Button, Typography, Alert, Select, Space } from 'antd';
-import { UserOutlined, LockOutlined, CalendarOutlined, LoginOutlined } from '@ant-design/icons';
+import React, { useState, useEffect, FormEvent } from 'react';
 import { useAuth } from '@/context/AuthContext';
-
-const { Title, Text } = Typography;
+import { MdOutlineVisibility, MdOutlineVisibilityOff } from 'react-icons/md';
 
 export default function Login() {
-    const { setUser } = useAuth();
-    const [loading, setLoading] = useState(false);
-    const [error, setError] = useState('');
-    const [mounted, setMounted] = useState(false);
+  const { setUser } = useAuth();
+  const [loading, setLoading] = useState(false);
+  const [serverError, setServerError] = useState('');
+  const [fieldErrors, setFieldErrors] = useState<{ username?: string; password?: string }>({});
+  const [showPassword, setShowPassword] = useState(false);
+  const [mounted, setMounted] = useState(false);
 
-    // Typing animation state
-    const [text, setText] = useState('');
-    const [isDeleting, setIsDeleting] = useState(false);
-    const [loopNum, setLoopNum] = useState(0);
-    const [typingSpeed, setTypingSpeed] = useState(150);
+  const currentYear = new Date().getFullYear();
+  const [username, setUsername] = useState('');
+  const [password, setPassword] = useState('');
+  const [fiscalYear, setFiscalYear] = useState(String(currentYear));
 
-    useEffect(() => {
-        setMounted(true);
-        const phrases = ['SIGEPENG', 'Si Generator Pengeluaran'];
-        const i = loopNum % phrases.length;
-        const fullText = phrases[i];
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
-        const handleTyping = () => {
-            setText(isDeleting
-                ? fullText.substring(0, text.length - 1)
-                : fullText.substring(0, text.length + 1)
-            );
+  const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    if (loading) return;
 
-            setTypingSpeed(isDeleting ? 50 : 150);
+    const errors: { username?: string; password?: string } = {};
+    if (!username.trim()) errors.username = 'Username wajib diisi';
+    if (!password) errors.password = 'Password wajib diisi';
+    setFieldErrors(errors);
+    if (Object.keys(errors).length > 0) return;
 
-            if (!isDeleting && text === fullText) {
-                setTimeout(() => setIsDeleting(true), 2000);
-            } else if (isDeleting && text === '') {
-                setIsDeleting(false);
-                setLoopNum(loopNum + 1);
-                setTypingSpeed(500);
-            }
-        };
+    setLoading(true);
+    setServerError('');
+    try {
+      const res = await fetch('/api/auth/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify({ username: username.trim(), password }),
+      });
 
-        const timer = setTimeout(handleTyping, typingSpeed);
-        return () => clearTimeout(timer);
-    }, [text, isDeleting, loopNum, typingSpeed]);
+      const data = await res.json();
 
-    const onFinish = async (values: { username: string; password: string; fiscalYear: number }) => {
-        setLoading(true);
-        setError('');
-        try {
-            const res = await fetch('/api/auth/login', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                credentials: 'include',
-                body: JSON.stringify({ username: values.username, password: values.password }),
-            });
+      if (!res.ok) {
+        throw new Error(data.error || 'Login gagal');
+      }
 
-            const data = await res.json();
+      // Keep the selected fiscal year for the session
+      localStorage.setItem('fiscalYear', fiscalYear);
+      setUser(data.user);
+    } catch (e: unknown) {
+      setServerError(e instanceof Error ? e.message : 'Login gagal');
+    } finally {
+      setLoading(false);
+    }
+  };
 
-            if (!res.ok) {
-                throw new Error(data.error || 'Login gagal');
-            }
+  if (!mounted) return null;
 
-            // Save selected fiscal year
-            localStorage.setItem('fiscalYear', String(values.fiscalYear));
-            setUser(data.user);
-        } catch (e: unknown) {
-            setError(e instanceof Error ? e.message : 'Login gagal');
-        } finally {
-            setLoading(false);
-        }
-    };
-
-    if (!mounted) return null;
-
-    return (
-        <div className="login-container">
-            <div className="login-background">
-                <div className="login-particles"></div>
-                <div className="login-gradient-orb orb-1"></div>
-                <div className="login-gradient-orb orb-2"></div>
-                <div className="login-gradient-orb orb-3"></div>
-            </div>
-            <div className="login-overlay"></div>
-            
-            <div className="login-float-container">
-                <Card className="login-card">
-                    <div className="login-header">
-                        <div className="login-logo">
-                            <div className="logo-circle">
-                                <span className="logo-icon">🏛️</span>
-                            </div>
-                        </div>
-                        <Title level={2} className="login-title">
-                            <span className="typing-text">{text}</span>
-                            <span className="cursor">|</span>
-                        </Title>
-                        <Text className="login-subtitle">Sistem Informasi Cek Penerimaan</Text>
-                        <div className="login-divider"></div>
-                    </div>
-
-                    {error && (
-                        <Alert 
-                            className="login-alert" 
-                            type="error" 
-                            message={error} 
-                            showIcon 
-                            style={{ marginBottom: 20 }}
-                        />
-                    )}
-
-                    <Form 
-                        layout="vertical" 
-                        onFinish={onFinish} 
-                        className="login-form"
-                        size="large"
-                    >
-                        <Space orientation="vertical" size="large" style={{ width: '100%' }}>
-                            <Form.Item 
-                                label={<span className="form-label">Username</span>} 
-                                name="username" 
-                                rules={[{ required: true, message: 'Username wajib diisi' }]}
-                            >
-                                <Input 
-                                    prefix={<UserOutlined className="input-icon" />}
-                                    autoComplete="username" 
-                                    placeholder="Masukkan username" 
-                                    className="login-input"
-                                />
-                            </Form.Item>
-
-                            <Form.Item 
-                                label={<span className="form-label">Password</span>} 
-                                name="password" 
-                                rules={[{ required: true, message: 'Password wajib diisi' }]}
-                            >
-                                <Input.Password 
-                                    prefix={<LockOutlined className="input-icon" />}
-                                    autoComplete="current-password" 
-                                    placeholder="Masukkan password" 
-                                    className="login-input"
-                                />
-                            </Form.Item>
-
-                            <Form.Item 
-                                label={<span className="form-label">Tahun Anggaran</span>} 
-                                name="fiscalYear" 
-                                initialValue={new Date().getFullYear()} 
-                                rules={[{ required: true, message: 'Tahun Anggaran wajib dipilih' }]}
-                            >
-                                <Select 
-                                    placeholder="📅 Pilih Tahun Anggaran" 
-                                    className="login-select"
-                                    size="large"
-                                    optionLabelProp="label"
-                                >
-                                    <Select.Option 
-                                        value={new Date().getFullYear()} 
-                                        label={`${new Date().getFullYear()}`}
-                                    >
-                                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                                            <span style={{ color: '#667eea' }}>📅</span>
-                                            <span>{new Date().getFullYear()} - Tahun Berjalan</span>
-                                        </div>
-                                    </Select.Option>
-                                    <Select.Option 
-                                        value={new Date().getFullYear() - 1} 
-                                        label={`${new Date().getFullYear() - 1}`}
-                                    >
-                                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                                            <span style={{ color: '#764ba2' }}>📊</span>
-                                            <span>{new Date().getFullYear() - 1} - Tahun Sebelumnya</span>
-                                        </div>
-                                    </Select.Option>
-                                </Select>
-                            </Form.Item>
-
-                            <Button 
-                                type="primary" 
-                                htmlType="submit" 
-                                block 
-                                loading={loading} 
-                                size="large" 
-                                className="login-button"
-                                icon={<LoginOutlined />}
-                            >
-                                {loading ? 'Sedang Masuk...' : 'Masuk Sekarang'}
-                            </Button>
-                        </Space>
-                    </Form>
-
-                    <div className="login-footer">
-                        <Text className="footer-text">
-                            © 2026 SI GEPENG. All rights reserved.
-                        </Text>
-                    </div>
-                </Card>
-            </div>
+  return (
+    <div className="login-container">
+      <div className="login-card">
+        <div className="login-header">
+          <img src="/logo-bpkad.webp" alt="Logo BPKAD" className="login-logo" fetchPriority="high" decoding="async" width={96} height={96} />
+          <h1 className="login-title">SI GEPENG</h1>
+          <p className="login-subtitle">Sistem Informasi Cek Penerimaan</p>
         </div>
-    );
+
+        {serverError && (
+          <div className="login-error" role="alert">
+            {serverError}
+          </div>
+        )}
+
+        <form className="login-form" onSubmit={handleSubmit} noValidate aria-busy={loading}>
+          <div className="login-field">
+            <label className="form-label" htmlFor="username">
+              Username
+            </label>
+            <input
+              id="username"
+              name="username"
+              type="text"
+              autoComplete="username"
+              placeholder="Masukkan username"
+              className="login-input"
+              value={username}
+              onChange={(e) => setUsername(e.target.value)}
+              aria-invalid={fieldErrors.username ? true : undefined}
+              aria-describedby={fieldErrors.username ? 'username-error' : undefined}
+            />
+            {fieldErrors.username && (
+              <span id="username-error" role="alert" className="login-field-error">
+                {fieldErrors.username}
+              </span>
+            )}
+          </div>
+
+          <div className="login-field">
+            <label className="form-label" htmlFor="password">
+              Password
+            </label>
+            <div className="login-field-control">
+              <input
+                id="password"
+                name="password"
+                type={showPassword ? 'text' : 'password'}
+                autoComplete="current-password"
+                placeholder="Masukkan password"
+                className="login-input"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                aria-invalid={fieldErrors.password ? true : undefined}
+                aria-describedby={fieldErrors.password ? 'password-error' : undefined}
+              />
+              <button
+                type="button"
+                className="login-pass-toggle"
+                aria-pressed={showPassword}
+                aria-label={showPassword ? 'Sembunyikan password' : 'Tampilkan password'}
+                onClick={() => setShowPassword((v) => !v)}
+              >
+                {showPassword ? <MdOutlineVisibilityOff size={20} /> : <MdOutlineVisibility size={20} />}
+              </button>
+            </div>
+            {fieldErrors.password && (
+              <span id="password-error" role="alert" className="login-field-error">
+                {fieldErrors.password}
+              </span>
+            )}
+          </div>
+
+          <div className="login-field">
+            <label className="form-label" htmlFor="fiscalYear">
+              Tahun Anggaran
+            </label>
+            <select
+              id="fiscalYear"
+              name="fiscalYear"
+              className="login-select"
+              value={fiscalYear}
+              onChange={(e) => setFiscalYear(e.target.value)}
+            >
+              <option value={String(currentYear)}>{currentYear} - Tahun Berjalan</option>
+              <option value={String(currentYear - 1)}>{currentYear - 1} - Tahun Sebelumnya</option>
+            </select>
+          </div>
+
+          <button type="submit" className="login-button" disabled={loading}>
+            {loading ? 'Sedang masuk...' : 'Masuk'}
+          </button>
+        </form>
+
+        <div className="login-footer">
+          <span className="footer-text">© 2026 SI GEPENG</span>
+        </div>
+      </div>
+    </div>
+  );
 }

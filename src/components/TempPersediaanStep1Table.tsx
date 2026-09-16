@@ -31,7 +31,7 @@ import {
     FundOutlined,
     QuestionCircleOutlined,
     DownOutlined,
-} from '@ant-design/icons';
+} from '@/components/md-icons';
 import PBSubkData from '@/data/PBSubk.json';
 import { useAuth } from '@/context/AuthContext';
 
@@ -231,7 +231,7 @@ export default function TempPersediaanStep1Table() {
         setFilterNoTerima(tempFilterNoTerima);
     };
 
-    const handleEmptyTable = async () => {
+    const doEmptyTable = async () => {
         setEmptying(true);
         try {
             const res = await fetch('/api/empty-step1', { method: 'POST', credentials: 'include' });
@@ -252,6 +252,17 @@ export default function TempPersediaanStep1Table() {
         } finally {
             setEmptying(false);
         }
+    };
+
+    const handleEmptyTable = () => {
+        Modal.confirm({
+            title: 'Kosongkan tabel?',
+            content: `Semua record (${totalRecords.toLocaleString('id-ID')} record) akan dihapus permanen dari Temp Persediaan. Tindakan ini tidak dapat dibatalkan.`,
+            okText: 'Ya, Hapus',
+            cancelText: 'Batal',
+            okButtonProps: { danger: true },
+            onOk: doEmptyTable,
+        });
     };
 
     const cleanKetPBSubk = namaPBSubk
@@ -438,7 +449,7 @@ export default function TempPersediaanStep1Table() {
     ];
 
     return (
-        <div style={{ padding: '20px' }}>
+        <div className="step1-wrap" style={{ padding: '20px' }}>
             <div style={{ marginBottom: 16, display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 8 }}>
                 <Space wrap>
                     <Space.Compact>
@@ -457,7 +468,6 @@ export default function TempPersediaanStep1Table() {
                             type="primary"
                             onClick={exportToExcel}
                             disabled={data.length === 0}
-                            style={{ background: '#52c41a', borderColor: '#52c41a' }}
                             size="middle"
                         >
                             <FileExcelOutlined />
@@ -492,7 +502,6 @@ export default function TempPersediaanStep1Table() {
                             size="middle"
                             href="https://simasetwiki.vercel.app/tutorial/cek-penerimaan-sigepeng"
                             target="_blank"
-                            style={{ color: '#faad14', borderColor: '#faad14' }}
                         >
                             Tutorial
                         </Button>
@@ -555,12 +564,12 @@ export default function TempPersediaanStep1Table() {
                                 onChange={handleNamaPBSubkChange}
                             />
                             {suggestions.length > 0 && (
-                                <ul style={{ position: 'absolute', background: 'white', border: '1px solid #d9d9d9', borderRadius: 4, padding: 0, margin: 0, listStyle: 'none', maxHeight: 200, overflowY: 'auto', width: '100%', zIndex: 1000 }}>
+                                <ul style={{ position: 'absolute', background: 'white', border: '2px solid #141414', boxShadow: '4px 4px 0 #141414', borderRadius: 8, padding: 0, margin: 0, listStyle: 'none', maxHeight: 200, overflowY: 'auto', width: 'calc(100% - 8px)', zIndex: 1000 }}>
                                     {suggestions.map((item, index) => (
                                         <li
                                             key={index}
                                             onClick={() => handleSuggestionClick(item)}
-                                            style={{ padding: '8px 12px', cursor: 'pointer', borderBottom: '1px solid #f0f0f0' }}
+                                            style={{ padding: '8px 12px', cursor: 'pointer', borderBottom: '1px solid #e4ddc9' }}
                                         >
                                             {item.KetPBSubk}
                                         </li>
@@ -634,13 +643,13 @@ export default function TempPersediaanStep1Table() {
             >
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
                     <Space orientation="vertical" size={8} style={{ width: '100%' }}>
-                        <Text strong><DatabaseOutlined /> <span style={{ color: '#ff4d4f' }}>Records:</span> {totalRecords}</Text>
-                        <Text strong><ShoppingCartOutlined /> <span style={{ color: '#ff4d4f' }}>Barang:</span> {totalQuantity.toLocaleString()}</Text>
-                        <Text strong><WalletOutlined /> <span style={{ color: '#ff4d4f' }}>Saldo Awal:</span> {initialBalance.toLocaleString('id-ID', { style: 'currency', currency: 'IDR' })}</Text>
-                        <Text strong><SyncOutlined /> <span style={{ color: '#ff4d4f' }}>Saldo Berjalan:</span> {runningBalance.toLocaleString('id-ID', { style: 'currency', currency: 'IDR' })}</Text>
-                        <Text strong><WalletOutlined /> <span style={{ color: '#ff4d4f' }}>Saldo Lain-lain:</span> {saldoLainLain.toLocaleString('id-ID', { style: 'currency', currency: 'IDR' })}</Text>
-                        <Text strong><FundOutlined /> <span style={{ color: '#ff4d4f' }}>Sisa Stock:</span> {SaldoAwalSem2.toLocaleString('id-ID', { style: 'currency', currency: 'IDR' })}</Text>
-                        <Text strong><DollarOutlined /> <span style={{ color: '#ff4d4f' }}>Total Harga:</span> {totalHarga.toLocaleString('id-ID', { style: 'currency', currency: 'IDR' })}</Text>
+                        <Text strong><DatabaseOutlined /> <span style={{ color: '#D61F1F' }}>Records:</span> {totalRecords}</Text>
+                        <Text strong><ShoppingCartOutlined /> <span style={{ color: '#D61F1F' }}>Barang:</span> {totalQuantity.toLocaleString()}</Text>
+                        <Text strong><WalletOutlined /> <span style={{ color: '#D61F1F' }}>Saldo Awal:</span> {initialBalance.toLocaleString('id-ID', { style: 'currency', currency: 'IDR' })}</Text>
+                        <Text strong><SyncOutlined /> <span style={{ color: '#D61F1F' }}>Saldo Berjalan:</span> {runningBalance.toLocaleString('id-ID', { style: 'currency', currency: 'IDR' })}</Text>
+                        <Text strong><WalletOutlined /> <span style={{ color: '#D61F1F' }}>Saldo Lain-lain:</span> {saldoLainLain.toLocaleString('id-ID', { style: 'currency', currency: 'IDR' })}</Text>
+                        <Text strong><FundOutlined /> <span style={{ color: '#D61F1F' }}>Sisa Stock:</span> {SaldoAwalSem2.toLocaleString('id-ID', { style: 'currency', currency: 'IDR' })}</Text>
+                        <Text strong><DollarOutlined /> <span style={{ color: '#D61F1F' }}>Total Harga:</span> {totalHarga.toLocaleString('id-ID', { style: 'currency', currency: 'IDR' })}</Text>
                     </Space>
                     <Button
                         type="primary"

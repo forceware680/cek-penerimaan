@@ -14,22 +14,31 @@ export default function Home() {
         justifyContent: 'center',
         alignItems: 'center',
         minHeight: '100vh',
-        background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+        background: '#f6f1e4',
       }}>
         <div style={{
-          color: '#fff',
-          fontSize: 24,
-          fontWeight: 'bold',
+          color: '#141414',
+          fontSize: 18,
+          fontWeight: 700,
+          letterSpacing: '0.04em',
         }}>
-          Loading...
+          Memuat...
         </div>
       </div>
     );
   }
 
   if (!user) {
-    return <Login />;
+    return (
+      <main>
+        <Login />
+      </main>
+    );
   }
 
-  return <Dashboard />;
+  return (
+    <main>
+      <Dashboard />
+    </main>
+  );
 }
