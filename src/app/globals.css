@@ -1334,6 +1334,12 @@ textarea.ant-input:focus {
     min-height: 44px;
   }
 
+  /* antd v6 sets a fixed 32px height on pagination items via CSS-in-JS,
+     so the floor needs !important to win (same rule as other targets). */
+  .ant-pagination-item {
+    min-height: 44px !important;
+  }
+
   .ant-menu-inline .ant-menu-item {
     min-height: 44px;
   }
