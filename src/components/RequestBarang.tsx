@@ -2,7 +2,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { 
     Table, Form, Input, Select, Button, Tag, Space, Card, 
     Row, Col, Modal, Typography, App as AntApp, Tabs, 
-    Badge, Empty, Spin, Segmented, Alert, Tooltip
+    Badge, Empty, Spin, Segmented, Alert, Tooltip, Checkbox
 } from 'antd';
 import { 
     PlusOutlined, HistoryOutlined, CheckCircleOutlined, 
@@ -13,9 +13,28 @@ import { useAuth } from '@/context/AuthContext';
 const { Title, Text, Paragraph } = Typography;
 const { TextArea } = Input;
 
+// Tabel admin lebar (scroll.x 900) tidak nyaman di ponsel; di mobile
+// tab "Menunggu" dirender sebagai kartu bertumpuk (breakpoint sama
+// dengan mobile block di globals.css: 768px).
+function useIsMobile() {
+    const [isMobile, setIsMobile] = useState(false);
+    useEffect(() => {
+        const mql = window.matchMedia('(max-width: 768px)');
+        const onChange = (e: MediaQueryListEvent) => setIsMobile(e.matches);
+        setIsMobile(mql.matches);
+        mql.addEventListener('change', onChange);
+        return () => mql.removeEventListener('change', onChange);
+    }, []);
+    return isMobile;
+}
+
+const formatDateTime = (val: any) =>
+    val ? new Date(typeof val === 'string' ? val.replace('Z', '') : val).toLocaleString('id-ID') : '-';
+
 export default function RequestBarang() {
     const { user } = useAuth();
     const isAdmin = user?.role === 'ADMIN';
+    const isMobile = useIsMobile();
     const [activeTab, setActiveTab] = useState(isAdmin ? 'pending' : 'form');
     const [loading, setLoading] = useState(false);
     const [form] = Form.useForm();
@@ -129,9 +148,10 @@ export default function RequestBarang() {
             title: 'Tolak Permintaan',
             content: (
                 <div style={{ marginTop: 16 }}>
-                    <Text>Berikan alasan penolakan:</Text>
+                    <Text id="rb-reject-instr">Berikan alasan penolakan:</Text>
                     <TextArea 
                         rows={3} 
+                        aria-labelledby="rb-reject-instr"
                         onChange={(e) => catatan = e.target.value} 
                         placeholder="Contoh: Nama barang tidak sesuai standar"
                         style={{ marginTop: 8 }}
@@ -165,9 +185,10 @@ export default function RequestBarang() {
             title: `Tolak ${selectedRowKeys.length} Permintaan`,
             content: (
                 <div style={{ marginTop: 16 }}>
-                    <Text>Berikan alasan penolakan massal:</Text>
+                    <Text id="rb-bulk-reject-instr">Berikan alasan penolakan massal:</Text>
                     <TextArea 
                         rows={3} 
+                        aria-labelledby="rb-bulk-reject-instr"
                         onChange={(e) => catatan = e.target.value} 
                         placeholder="Semua permintaan yang dipilih akan ditolak dengan alasan ini"
                         style={{ marginTop: 8 }}
@@ -243,6 +264,16 @@ export default function RequestBarang() {
         });
     };
 
+    const toggleSelect = (key: React.Key, checked: boolean) => {
+        setSelectedRowKeys(prev => (checked ? [...prev, key] : prev.filter(k => k !== key)));
+    };
+
+    const openApprove = (req: any) => {
+        setSelectedRequest(req);
+        setApproveModalOpen(true);
+        approveForm.setFieldsValue({ IDPLU_Req: req.IDPLU_Req });
+    };
+
     const getStatusTag = (status: string) => {
         switch (status) {
             case 'PENDING': return <Tag color="blue">MENUNGGU</Tag>;
@@ -252,19 +283,24 @@ export default function RequestBarang() {
         }
     };
 
+    const tanggalShort = (val: any) =>
+        val ? new Date(typeof val === 'string' ? val.replace('Z', '') : val).toLocaleDateString('id-ID') : '-';
+
+    const userOpdCell = (_: any, record: any) => isAdmin ? (
+        <div>
+            <Text strong>{record.Username}</Text>
+            <div style={{ fontSize: 11, color: 'var(--text-soft)' }}>{record.OPDName || '-'}</div>
+        </div>
+    ) : (
+        <Text>{record.KetObjekRSSub}</Text>
+    );
+
     const historyColumns = [
-        { title: 'Tgl', dataIndex: 'CreatedAt', key: 'CreatedAt', render: (val: any) => val ? new Date(typeof val === 'string' ? val.replace('Z', '') : val).toLocaleDateString('id-ID') : '-', width: 100 },
+        { title: 'Tgl', dataIndex: 'CreatedAt', key: 'CreatedAt', render: tanggalShort, width: 100 },
         { 
             title: isAdmin ? 'User / OPD' : 'Akun (ObjekRSSub)', 
             key: 'user_opd', 
-            render: (_: any, record: any) => isAdmin ? (
-                <div>
-                    <Text strong>{record.Username}</Text>
-                    <div style={{ fontSize: 11, color: '#4a4a44' }}>{record.OPDName || '-'}</div>
-                </div>
-            ) : (
-                <Text>{record.KetObjekRSSub}</Text>
-            )
+            render: userOpdCell
         },
         { title: 'Barang', dataIndex: 'Keterangan', key: 'Keterangan', strong: true },
         { title: 'Satuan', dataIndex: 'Satuan', key: 'Satuan', width: 90 },
@@ -280,7 +316,7 @@ export default function RequestBarang() {
             )
         },
         { title: 'Status', dataIndex: 'Status', key: 'Status', render: (val: string) => getStatusTag(val) },
-        { 
+        {
             title: 'Catatan Admin', 
             dataIndex: 'CatatanAdmin', 
             key: 'CatatanAdmin', 
@@ -293,17 +329,44 @@ export default function RequestBarang() {
         },
     ];
 
+    // Mobile: Barang+Satuan+Tipe digabung jadi satu kolom dan Catatan Admin
+    // tampil penuh (tanpa ellipsis/tooltip hover) agar baris terbaca tanpa
+    // harus scroll horizontal jauh di layar sempit.
+    const mobileHistoryColumns = [
+        { title: 'Tgl', dataIndex: 'CreatedAt', key: 'CreatedAt', render: tanggalShort, width: 92 },
+        { title: isAdmin ? 'User / OPD' : 'Akun (ObjekRSSub)', key: 'user_opd', render: userOpdCell },
+        {
+            title: 'Barang',
+            key: 'barang',
+            render: (_: any, record: any) => (
+                <div>
+                    <Text strong>{record.Keterangan}</Text>
+                    <div className="rb-hist-meta">Satuan: {record.Satuan} | Tipe: {record.StaID}</div>
+                    {record.IDPLU_Req && <div className="rb-hist-meta">Req ID: {record.IDPLU_Req}</div>}
+                </div>
+            )
+        },
+        { title: 'Status', dataIndex: 'Status', key: 'Status', render: (val: string) => getStatusTag(val), width: 110 },
+        {
+            title: 'Catatan Admin',
+            dataIndex: 'CatatanAdmin',
+            key: 'CatatanAdmin',
+            width: 180,
+            render: (val: string) => val || '-'
+        },
+    ];
+
     const adminColumns = [
-        { title: 'Tgl Submit', dataIndex: 'CreatedAt', key: 'CreatedAt', render: (val: any) => val ? new Date(typeof val === 'string' ? val.replace('Z', '') : val).toLocaleString('id-ID') : '-', width: 150 },
+        { title: 'Tgl Submit', dataIndex: 'CreatedAt', key: 'CreatedAt', render: (val: any) => formatDateTime(val), width: 150 },
         { title: 'User / OPD', key: 'user', render: (_: any, record: any) => (
             <div>
                 <Text strong>{record.Username}</Text>
-                <div style={{ fontSize: 11, color: '#4a4a44' }}>{record.OPDName || '-'}</div>
+                <div style={{ fontSize: 11, color: 'var(--text-soft)' }}>{record.OPDName || '-'}</div>
             </div>
         )},
         { title: 'Detail Barang', key: 'detail', render: (_: any, record: any) => (
             <div>
-                <div style={{ fontSize: 12, color: '#141414', fontWeight: 600 }}>[{record.ObjekRSSub}] {record.KetObjekRSSub}</div>
+                <div style={{ fontSize: 12, color: 'var(--ink)', fontWeight: 600 }}>[{record.ObjekRSSub}] {record.KetObjekRSSub}</div>
                 <Text strong>{record.Keterangan}</Text>
                 <div style={{ fontSize: 12 }}>Satuan: {record.Satuan} | Tipe: {record.StaID}</div>
                 {record.IDPLU_Req && <Text type="secondary" style={{ fontSize: 11 }}>Req ID: {record.IDPLU_Req}</Text>}
@@ -322,11 +385,7 @@ export default function RequestBarang() {
                             type="primary" 
                             shape="circle"
                             icon={<CheckCircleOutlined />} 
-                            onClick={() => {
-                                setSelectedRequest(record);
-                                setApproveModalOpen(true);
-                                approveForm.setFieldsValue({ IDPLU_Req: record.IDPLU_Req });
-                            }}
+                            onClick={() => openApprove(record)}
                         />
                     </Tooltip>
                     <Tooltip title="Tolak Permintaan">
@@ -342,6 +401,65 @@ export default function RequestBarang() {
         },
     ];
 
+    const bulkBar = selectedRowKeys.length > 0 && (
+        <div className="bulk-bar" style={{ marginBottom: 16, padding: '12px 16px', background: 'var(--accent-tint)', border: '2px solid var(--ink)', borderRadius: 10, boxShadow: '4px 4px 0 var(--ink)', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 12 }}>
+            <Text strong style={{ color: 'var(--ink)' }}>{selectedRowKeys.length} permintaan dipilih</Text>
+            <Space>
+                <Button type="primary" onClick={handleBulkApprove} icon={<CheckCircleOutlined />}>Approve Semua</Button>
+                <Button danger onClick={handleBulkReject} icon={<CloseCircleOutlined />}>Reject Semua</Button>
+            </Space>
+        </div>
+    );
+
+    const pendingMobileList = (
+        <div aria-busy={loading}>
+            {bulkBar}
+            {loading && pendingRequests.length === 0 ? (
+                <div style={{ display: 'flex', justifyContent: 'center', padding: '32px 0' }}>
+                    <Spin />
+                </div>
+            ) : pendingRequests.length === 0 ? (
+                <div className="rb-pending-card rb-pending-empty">
+                    <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description="Tidak ada permintaan menunggu" />
+                </div>
+            ) : (
+                <div className="rb-pending-list">
+                    {pendingRequests.map(req => (
+                        <div key={req.RequestID} className="rb-pending-card">
+                            <div className="rb-pending-top">
+                                <Checkbox
+                                    checked={selectedRowKeys.includes(req.RequestID)}
+                                    onChange={(e) => toggleSelect(req.RequestID, e.target.checked)}
+                                    aria-label={`Pilih permintaan ${req.Keterangan}`}
+                                />
+                                {getStatusTag('PENDING')}
+                            </div>
+                            <div className="rb-pending-user">
+                                <Text strong>{req.Username}</Text>
+                                <span className="rb-pending-opd">{req.OPDName || '-'}</span>
+                            </div>
+                            <div className="rb-pending-detail">
+                                <span className="rb-pending-objek">[{req.ObjekRSSub}] {req.KetObjekRSSub}</span>
+                                <Text strong>{req.Keterangan}</Text>
+                                <span className="rb-pending-meta">Satuan: {req.Satuan} | Tipe: {req.StaID}</span>
+                                {req.IDPLU_Req && <span className="rb-pending-meta">Req ID: {req.IDPLU_Req}</span>}
+                                <span className="rb-pending-date">{formatDateTime(req.CreatedAt)}</span>
+                            </div>
+                            <div className="rb-pending-actions">
+                                <Button type="primary" block icon={<CheckCircleOutlined />} onClick={() => openApprove(req)}>
+                                    Setujui
+                                </Button>
+                                <Button danger block icon={<CloseCircleOutlined />} onClick={() => handleReject(req)}>
+                                    Tolak
+                                </Button>
+                            </div>
+                        </div>
+                    ))}
+                </div>
+            )}
+        </div>
+    );
+
     return (
         <div>
             <div style={{ overflow: 'hidden' }}>
@@ -355,7 +473,7 @@ export default function RequestBarang() {
                             <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
                                 <Title level={3} style={{ 
                                     margin: 0,
-                                    color: '#141414',
+                                    color: 'var(--ink)',
                                 }}>
                                     {isAdmin ? 'Manajemen Request Kode Barang' : 'Request Kode Barang Baru'}
                                 </Title>
@@ -393,21 +511,13 @@ export default function RequestBarang() {
                                 {
                                     key: 'pending',
                                     label: (
-                                        <Badge count={pendingRequests.length} offset={[16, 0]} size="small" color="#f5222d">
-                                            <span style={{ paddingRight: 8, fontWeight: 500 }}><InfoCircleOutlined /> Menunggu Persetujuan</span>
+                                        <Badge count={pendingRequests.length} offset={[16, 0]} size="small" color="var(--danger)">
+                                            <span style={{ paddingRight: 8, fontWeight: 500 }}><InfoCircleOutlined /> {isMobile ? 'Menunggu' : 'Menunggu Persetujuan'}</span>
                                         </Badge>
                                     ),
-                                    children: (
+                                    children: isMobile ? pendingMobileList : (
                                         <Card variant="borderless" style={{ borderRadius: 12 }} className="table-card-wrapper">
-                                            {selectedRowKeys.length > 0 && (
-                                                <div className="bulk-bar" style={{ marginBottom: 16, padding: '12px 16px', background: '#FFF3C4', border: '2px solid #141414', borderRadius: 10, boxShadow: '4px 4px 0 #141414', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 12 }}>
-                                                    <Text strong style={{ color: '#141414' }}>{selectedRowKeys.length} permintaan dipilih</Text>
-                                                    <Space>
-                                                        <Button type="primary" onClick={handleBulkApprove} icon={<CheckCircleOutlined />}>Approve Semua</Button>
-                                                        <Button danger onClick={handleBulkReject} icon={<CloseCircleOutlined />}>Reject Semua</Button>
-                                                    </Space>
-                                                </div>
-                                            )}
+                                            {bulkBar}
                                             <Table 
                                                 rowSelection={{
                                                     selectedRowKeys,
@@ -439,8 +549,8 @@ export default function RequestBarang() {
                                                 }}
                                                 title={
                                                     <Space>
-                                                        <div style={{ padding: 8, background: '#FFD23F', border: '2px solid #141414', borderRadius: 8, display: 'flex' }}>
-                                                            <PlusOutlined style={{ color: '#141414', fontSize: 16 }} />
+                                                        <div style={{ padding: 8, background: 'var(--accent)', border: '2px solid var(--ink)', borderRadius: 8, display: 'flex' }}>
+                                                            <PlusOutlined style={{ color: 'var(--ink)', fontSize: 16 }} />
                                                         </div>
                                                         <Text strong style={{ fontSize: 16, letterSpacing: 0.5 }}>Form Pengajuan</Text>
                                                     </Space>
@@ -549,15 +659,15 @@ export default function RequestBarang() {
                             ]),
                             {
                                 key: 'history',
-                                label: (<span style={{ fontWeight: 500 }}><HistoryOutlined /> {isAdmin ? 'Semua Riwayat' : 'Riwayat Saya'}</span>),
+                                label: (<span style={{ fontWeight: 500 }}><HistoryOutlined /> {isMobile ? 'Riwayat' : isAdmin ? 'Semua Riwayat' : 'Riwayat Saya'}</span>),
                                 children: (
                                     <Card variant="borderless" style={{ borderRadius: 12 }}>
                                         <Table 
-                                            columns={historyColumns} 
+                                            columns={isMobile ? mobileHistoryColumns : historyColumns} 
                                             dataSource={history} 
                                             rowKey="RequestID" 
                                             loading={loading}
-                                            scroll={{ x: 900 }}
+                                            scroll={{ x: isMobile ? 700 : 900 }}
                                             pagination={{ defaultPageSize: 15, showSizeChanger: true }}
                                             locale={{ emptyText: isAdmin ? <Empty description="Belum ada riwayat pengajuan" image={Empty.PRESENTED_IMAGE_SIMPLE} /> : <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} /> }}
                                         />
@@ -570,7 +680,7 @@ export default function RequestBarang() {
 
                 {/* Approval Modal */}
                 <Modal
-                    title={<Space><CheckCircleOutlined style={{ color: '#141414' }} />Konfirmasi Persetujuan</Space>}
+                    title={<Space><CheckCircleOutlined style={{ color: 'var(--ink)' }} />Konfirmasi Persetujuan</Space>}
                     open={approveModalOpen}
                     onOk={() => approveForm.submit()}
                     onCancel={() => setApproveModalOpen(false)}
@@ -582,7 +692,7 @@ export default function RequestBarang() {
                 >
                     <div style={{ marginBottom: 24 }}>
                         <Paragraph>Anda akan menyetujui permintaan berikut:</Paragraph>
-                        <Card size="small" variant="borderless" style={{ background: '#F5F0DF' }}>
+                        <Card size="small" variant="borderless" style={{ background: 'var(--paper)' }}>
                             <Text strong style={{ fontSize: 16 }}>{selectedRequest?.Keterangan}</Text>
                             <div style={{ marginTop: 8 }}>
                                 <Tag color="blue">{selectedRequest?.Satuan}</Tag>
